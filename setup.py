@@ -11,18 +11,18 @@ setup(name='sewar',
       description='All image quality metrics you need in one package.',
       long_description=readme(),
       classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 2 - Pre-Alpha',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2.7',
-        'Topic :: Text Processing :: Linguistic',
+        'Programming Language :: Python :: 3.6',
+        'Topic :: Multimedia :: Graphics',
       ],
       keywords='image quality performance metric measure ergas q psnr',
-      url='http://github.com/storborg/funniest',
+      url='https://github.com/andrewekhalel/sewar',
       author='Andrew Khalel',
       author_email='andrewekhalel@gmail.com',
       license='MIT',
       packages=['sewar'],
       install_requires=[
-          'numpy',
+          'numpy', 'scipy'
       ],
       zip_safe=False)
