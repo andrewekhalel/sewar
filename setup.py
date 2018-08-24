@@ -22,7 +22,9 @@ setup(name='sewar',
       author_email='andrewekhalel@gmail.com',
       license='MIT',
       packages=['sewar'],
+      test_suite='nose.collector',
+      tests_require=['nose'],
       install_requires=[
-          'numpy', 'scipy'
+          'numpy', 'scipy', 'tifffile'
       ],
       zip_safe=False)
