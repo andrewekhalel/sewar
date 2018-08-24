@@ -27,3 +27,7 @@ class TestMetrics(TestCase):
 	def test_psnr_typical(self):
 		psnr = sewar.psnr(tif.imread(self._IMG1_PATH),tif.imread(self._IMG1_PATH))
 		self.assertTrue(psnr == np.inf)
+
+	def test_uqi_typical(self):
+		uqi = sewar.uqi(tif.imread(self._IMG1_PATH),tif.imread(self._IMG1_PATH))
+		self.assertTrue(uqi == 1.)
