@@ -6,28 +6,100 @@ import sewar
 
 import os
 
-class TestMetrics(TestCase):
+class Tester(TestCase):
 	def __init__(self, *args, **kwargs):
-		super(TestMetrics, self).__init__(*args, **kwargs)
-		self._TEST_DIR = os.path.dirname(__file__)
-		self._IMG1_PATH = os.path.join(self._TEST_DIR,'resources/lena512color.tiff')
-	
-	def test_mse_typical(self):
-		mse = sewar.mse(tif.imread(self._IMG1_PATH),tif.imread(self._IMG1_PATH))
+		super(Tester, self).__init__(*args, **kwargs)
+		self.RESOURCES_DIR = os.path.join(os.path.dirname(__file__),'res')
+		self.IMAGES = {'clr':'lena512color.tiff',
+						'clr_noise': 'lena512color_noise.tiff',
+						'clr_const': 'lena512color_constant.tiff',
+						'gry': 'lena512gray.tiff',
+						'gry_noise': 'lena512gray_noise.tiff',
+						'gry_const': 'lena512gray_constant.tiff',
+						}
+		self.eps = 10e-4
+
+	def read(self,key):
+		return tif.imread(os.path.join(self.RESOURCES_DIR,self.IMAGES[key]))
+
+class TestMse(Tester):
+	def test_color(self):
+		mse = sewar.mse(self.read('clr'),self.read('clr'))
 		self.assertTrue(mse == 0.0)
 
-	def test_rmse_typical(self):
-		rmse = sewar.rmse(tif.imread(self._IMG1_PATH),tif.imread(self._IMG1_PATH))
-		self.assertTrue(rmse == 0.0)
+	def test_gray(self):
+		mse = sewar.mse(self.read('gry'),self.read('gry'))
+		self.assertTrue(mse == 0.0)
 
-	def test_rmse_sw_typical(self):
-		rmse_sw = sewar.rmse_sw(tif.imread(self._IMG1_PATH),tif.imread(self._IMG1_PATH))
-		self.assertTrue(rmse_sw == 0.0)
+	def test_color_noise(self):
+		mse = sewar.mse(self.read('clr'),self.read('clr_noise'))
+		print (mse)
+		self.assertTrue(abs(mse - 2391.465875) < self.eps)
 
-	def test_psnr_typical(self):
-		psnr = sewar.psnr(tif.imread(self._IMG1_PATH),tif.imread(self._IMG1_PATH))
+	def test_gray_noise(self):
+		mse = sewar.mse(self.read('gry'),self.read('gry_noise'))
+		self.assertTrue(abs(mse - 2025.913940) < self.eps)
+
+	def test_color_const(self):
+		mse = sewar.mse(self.read('clr'),self.read('clr_const'))
+		self.assertTrue(abs(mse - 2302.953958) < self.eps)
+
+	def test_gray_const(self):
+		mse = sewar.mse(self.read('gry'),self.read('gry_const'))
+		self.assertTrue(abs(mse - 2016.476768) < self.eps)
+
+class Testpsnr(Tester):
+	def test_color(self):
+		psnr = sewar.psnr(self.read('clr'),self.read('clr'))
 		self.assertTrue(psnr == np.inf)
 
-	def test_uqi_typical(self):
-		uqi = sewar.uqi(tif.imread(self._IMG1_PATH),tif.imread(self._IMG1_PATH))
-		self.assertTrue(uqi == 1.)
+	def test_gray(self):
+		psnr = sewar.psnr(self.read('gry'),self.read('gry'))
+		self.assertTrue(psnr == np.inf)
+
+	def test_color_noise(self):
+		psnr = sewar.psnr(self.read('clr'),self.read('clr_noise'))
+		print (psnr)
+		self.assertTrue(abs(psnr - 14.344162) < self.eps)
+
+	def test_gray_noise(self):
+		psnr = sewar.psnr(self.read('gry'),self.read('gry_noise'))
+		self.assertTrue(abs(psnr - 15.064594) < self.eps)
+
+	def test_color_const(self):
+		psnr = sewar.psnr(self.read('clr'),self.read('clr_const'))
+		self.assertTrue(abs(psnr - 14.507951) < self.eps)
+
+	def test_gray_const(self):
+		psnr = sewar.psnr(self.read('gry'),self.read('gry_const'))
+		self.assertTrue(abs(psnr - 15.084871) < self.eps)
+
+class TestSsim(Tester):
+	def test_color(self):
+		ssim = sewar.ssim(self.read('clr'),self.read('clr'),ws=11)
+		self.assertTrue(ssim == 1.)
+
+	def test_gray(self):
+		ssim = sewar.ssim(self.read('gry'),self.read('gry'),ws=11)
+		self.assertTrue(ssim == 1.)
+
+	def test_color_noise(self):
+		ssim = sewar.ssim(self.read('clr'),self.read('clr_noise'),ws=11)
+		print (ssim)
+		self.assertTrue(abs(ssim - 0.168002) < self.eps)
+
+	def test_gray_noise(self):
+		ssim = sewar.ssim(self.read('gry'),self.read('gry_noise'),ws=11)
+		print (ssim)
+		self.assertTrue(abs(ssim - 0.202271) < self.eps)
+
+	def test_color_const(self):
+		ssim = sewar.ssim(self.read('clr'),self.read('clr_const'),ws=11)
+		print (ssim)
+		self.assertTrue(abs(ssim - 0.895863) < self.eps)
+
+	def test_gray_const(self):
+		ssim = sewar.ssim(self.read('gry'),self.read('gry_const'),ws=11)
+		print (ssim)
+		self.assertTrue(abs(ssim - 0.926078) < self.eps)
+
