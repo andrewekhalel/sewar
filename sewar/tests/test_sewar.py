@@ -103,3 +103,26 @@ class TestSsim(Tester):
 		print (ssim)
 		self.assertTrue(abs(ssim - 0.926078) < self.eps)
 
+
+class TestRmse(Tester):
+	def test_color(self):
+		ssim = sewar.rmse(self.read('clr'),self.read('clr'))
+		self.assertTrue(ssim == 0)
+
+	def test_gray(self):
+		ssim = sewar.rmse(self.read('gry'),self.read('gry'))
+		self.assertTrue(ssim == 0)
+
+	def test_color_sw(self):
+		ssim = sewar.rmse_sw(self.read('clr'),self.read('clr'))
+		self.assertTrue(ssim == 0)
+
+	def test_gray_sw(self):
+		ssim = sewar.rmse_sw(self.read('gry'),self.read('gry'))
+		self.assertTrue(ssim == 0)
+
+	def test_compare_rmse(self):
+		ssim = sewar.rmse(self.read('gry'),self.read('gry_const'))
+		ssim_sw = sewar.rmse_sw(self.read('gry'),self.read('gry_const'),ws=510)
+		print(ssim,ssim_sw)
+		self.assertTrue(abs(ssim - ssim_sw) < self.eps)
