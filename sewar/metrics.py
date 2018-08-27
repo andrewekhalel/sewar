@@ -14,9 +14,9 @@ def rmse (GT,P):
 def _rmse_sw_single (GT,P,ws):
 	errors = (GT-P)**2
 	errors = uniform_filter(errors,ws)
-	rmses = np.sqrt(errors)
+	rmse_map = np.sqrt(errors)
 	s = int(np.round((ws/2)))
-	return np.mean(rmses[s:-s,s:-s])
+	return np.mean(rmse_map[s:-s,s:-s]),rmse_map
 
 def rmse_sw (GT,P,ws=8):
 	GT,P = _initial_check(GT,P)
@@ -24,7 +24,12 @@ def rmse_sw (GT,P,ws=8):
 	if len(GT.shape) == 2:
 		return _rmse_sw_single (GT,P,ws)
 	else:
-		return np.mean([_rmse_sw_single (GT[:,:,i],P[:,:,i],ws) for i in range(GT.shape[2])])
+		rmse_map = np.zeros(GT.shape)
+		vals = np.zeros(GT.shape[2])
+		for i in range(GT.shape[2]):
+			vals[i],rmse_map[:,:,i] = _rmse_sw_single (GT[:,:,i],P[:,:,i],ws) 
+
+		return np.mean(vals),rmse_map
 
 def psnr (GT,P,MAX=None):
 	if MAX is None:
@@ -105,3 +110,25 @@ def ssim (GT,P,ws=11,K1=0.01,K2=0.03,MAX=None):
 		return _ssim_single(GT,P,ws,C1,C2)
 	else:
 		return np.mean([_ssim_single(GT[:,:,i],P[:,:,i],ws,C1,C2) for i in range(GT.shape[2])])
+
+
+def ergas(GT,P,h_over_l=4,ws=8):
+	rmse_map = None
+	nb = 1
+
+	_,rmse_map = rmse_sw(GT,P,ws)
+	if len(rmse_map.shape) == 2:
+		rmse_map = rmse_map[:,:,np.newaxis]
+
+	means_map = uniform_filter(GT,ws)/ws**2
+
+	# Avoid division by zero
+	idx = means_map == 0
+	means_map[idx] = 1
+	rmse_map[idx] = 0
+
+	ergasroot = np.sqrt(np.sum(((rmse_map**2)/(means_map**2)),axis=2)/nb)
+	ergas_map = 100*h_over_l*ergasroot;
+
+	s = int(np.round(ws/2))
+	return np.mean(ergas_map[s:-s,s:-s])
