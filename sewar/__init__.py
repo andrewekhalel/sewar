@@ -5,3 +5,4 @@ from .metrics import rmse_sw
 from .metrics import uqi
 from .metrics import ssim
 from .metrics import ergas
+from .metrics import scc

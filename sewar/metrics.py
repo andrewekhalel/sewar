@@ -1,7 +1,8 @@
 from __future__ import absolute_import, division, print_function
 import numpy as np
-from .utils import _initial_check
-from scipy.ndimage.filters import convolve,gaussian_filter,uniform_filter
+from .utils import _initial_check,_get_sigmas,_get_sums
+from scipy.ndimage.filters import generic_laplace,uniform_filter,correlate
+from scipy import signal
 
 def mse (GT,P):
 	GT,P = _initial_check(GT,P)
@@ -80,17 +81,8 @@ def uqi (GT,P,ws=8):
 		return np.mean([_uqi_single(GT[:,:,i],P[:,:,i],ws) for i in range(GT.shape[2])])
 
 def _ssim_single (GT,P,ws,C1,C2):
-	GT_sum = uniform_filter(GT, ws)    
-	P_sum =  uniform_filter(P, ws)     
-
-	GT_sum_sq = GT_sum*GT_sum
-	P_sum_sq = P_sum*P_sum
-	GT_P_sum_mul = GT_sum*P_sum 
-
-	sigmaGT_sq = uniform_filter(GT*GT, ws) - GT_sum_sq
-	sigmaP_sq = uniform_filter(P*P, ws) - P_sum_sq
-	sigmaGT_P = uniform_filter(GT*P, ws) - GT_P_sum_mul
-
+	GT_sum_sq,P_sum_sq,GT_P_sum_mul = _get_sums(GT,P,ws)
+	sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT,P,ws)
 
 	ssim_map = ((2*GT_P_sum_mul + C1)*(2*sigmaGT_P + C2))/((GT_sum_sq + P_sum_sq + C1)*(sigmaGT_sq + sigmaP_sq + C2))
 
@@ -113,6 +105,8 @@ def ssim (GT,P,ws=11,K1=0.01,K2=0.03,MAX=None):
 
 
 def ergas(GT,P,h_over_l=4,ws=8):
+	GT,P = _initial_check(GT,P)
+
 	rmse_map = None
 	nb = 1
 
@@ -132,3 +126,27 @@ def ergas(GT,P,h_over_l=4,ws=8):
 
 	s = int(np.round(ws/2))
 	return np.mean(ergas_map[s:-s,s:-s])
+
+def _scc_single(GT,P,fltr,ws):
+	def _scc_filter(input, axis, output, mode, cval):
+		return correlate(input, fltr , output, mode, cval, 0)
+
+	GT_hp = generic_laplace(GT, _scc_filter)
+	P_hp = generic_laplace(P, _scc_filter)
+	sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT_hp,P_hp,ws)
+	return sigmaGT_P /(np.sqrt(sigmaGT_sq) * np.sqrt(sigmaP_sq))
+
+def scc(GT,P,fltr=[[-1,-1,-1],[-1,8,-1],[-1,-1,-1]],ws=8):
+	GT,P = _initial_check(GT,P)
+
+	if len(GT.shape) == 3:
+		coefs = np.zeros(GT.shape)
+		for i in range(GT.shape[2]):
+			coefs[:,:,i] = _scc_single(GT[:,:,i],P[:,:,i],fltr,ws)
+		return np.mean(coefs)
+	else:
+		return np.mean(_scc_single(GT,P,fltr,ws))
+
+
+
+

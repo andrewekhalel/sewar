@@ -135,3 +135,12 @@ class TestErgas(Tester):
 	def test_gray(self):
 		ergas = sewar.ergas(self.read('gry'),self.read('gry'))
 		self.assertTrue(ergas == 0)
+
+class TestScc(Tester):
+	def test_color(self):
+		scc = sewar.scc(self.read('clr'),self.read('clr'))
+		self.assertTrue(scc == 1)
+
+	def test_gray(self):
+		scc = sewar.scc(self.read('gry'),self.read('gry'))
+		self.assertTrue(scc == 1)
