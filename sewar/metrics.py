@@ -147,6 +147,24 @@ def scc(GT,P,fltr=[[-1,-1,-1],[-1,8,-1],[-1,-1,-1]],ws=8):
 	else:
 		return np.mean(_scc_single(GT,P,fltr,ws))
 
+def rase(GT,P,ws=8):
+	GT,P = _initial_check(GT,P)
 
+	_,rmse_map = rmse_sw(GT,P,ws)
+
+	if len(GT.shape) == 2:
+		GT = GT[:,:,np.newaxis]
+		P = P[:,:,np.newaxis]
+		rmse_map = rmse_map[:,:,np.newaxis]
+			
+	GT_means = uniform_filter(GT, ws)/ws**2
+
+
+	N = GT.shape[2]
+	M = np.sum(GT_means,axis=2)/N
+	rase_map = (100./M) * np.sqrt( np.sum(rmse_map**2,axis=2) / N )
+
+	s = int(np.round(ws/2))
+	return np.mean(rase_map[s:-s,s:-s])
 
 
