@@ -154,3 +154,12 @@ class TestRase(Tester):
 		rase = sewar.rase(self.read('gry'),self.read('gry'))
 		self.assertTrue(rase == 0)
 
+class TestSam(Tester):
+	def test_color(self):
+		sam = sewar.sam(self.read('clr'),self.read('clr'))
+		self.assertTrue(sam < self.eps)
+
+	def test_gray(self):
+		sam = sewar.sam(self.read('gry'),self.read('gry'))
+		self.assertTrue(sam < self.eps)
+

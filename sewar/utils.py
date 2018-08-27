@@ -3,6 +3,11 @@ from scipy.ndimage.filters import uniform_filter
 def _initial_check(GT,P):
 	assert GT.shape == P.shape, "Supplied images have different sizes"
 	assert GT.dtype == P.dtype, "Supplied images have different dtypes"
+
+	if len(GT.shape) == 2:
+		GT = GT[:,:,np.newaxis]
+		P = P[:,:,np.newaxis]
+
 	return GT.astype(np.float64),P.astype(np.float64)
 
 def _replace_value(array,value,replace_with):

@@ -7,3 +7,4 @@ from .metrics import ssim
 from .metrics import ergas
 from .metrics import scc
 from .metrics import rase
+from .metrics import sam

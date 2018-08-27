@@ -22,15 +22,12 @@ def _rmse_sw_single (GT,P,ws):
 def rmse_sw (GT,P,ws=8):
 	GT,P = _initial_check(GT,P)
 
-	if len(GT.shape) == 2:
-		return _rmse_sw_single (GT,P,ws)
-	else:
-		rmse_map = np.zeros(GT.shape)
-		vals = np.zeros(GT.shape[2])
-		for i in range(GT.shape[2]):
-			vals[i],rmse_map[:,:,i] = _rmse_sw_single (GT[:,:,i],P[:,:,i],ws) 
+	rmse_map = np.zeros(GT.shape)
+	vals = np.zeros(GT.shape[2])
+	for i in range(GT.shape[2]):
+		vals[i],rmse_map[:,:,i] = _rmse_sw_single (GT[:,:,i],P[:,:,i],ws) 
 
-		return np.mean(vals),rmse_map
+	return np.mean(vals),rmse_map
 
 def psnr (GT,P,MAX=None):
 	if MAX is None:
@@ -74,11 +71,7 @@ def _uqi_single(GT,P,ws):
 
 def uqi (GT,P,ws=8):
 	GT,P = _initial_check(GT,P)
-
-	if len(GT.shape) == 2:
-		return _uqi_single(GT,P,ws)
-	else:
-		return np.mean([_uqi_single(GT[:,:,i],P[:,:,i],ws) for i in range(GT.shape[2])])
+	return np.mean([_uqi_single(GT[:,:,i],P[:,:,i],ws) for i in range(GT.shape[2])])
 
 def _ssim_single (GT,P,ws,C1,C2):
 	GT_sum_sq,P_sum_sq,GT_P_sum_mul = _get_sums(GT,P,ws)
@@ -98,10 +91,7 @@ def ssim (GT,P,ws=11,K1=0.01,K2=0.03,MAX=None):
 
 	C1 = (K1*MAX)**2
 	C2 = (K2*MAX)**2
-	if len(GT.shape) == 2:
-		return _ssim_single(GT,P,ws,C1,C2)
-	else:
-		return np.mean([_ssim_single(GT[:,:,i],P[:,:,i],ws,C1,C2) for i in range(GT.shape[2])])
+	return np.mean([_ssim_single(GT[:,:,i],P[:,:,i],ws,C1,C2) for i in range(GT.shape[2])])
 
 
 def ergas(GT,P,h_over_l=4,ws=8):
@@ -111,8 +101,6 @@ def ergas(GT,P,h_over_l=4,ws=8):
 	nb = 1
 
 	_,rmse_map = rmse_sw(GT,P,ws)
-	if len(rmse_map.shape) == 2:
-		rmse_map = rmse_map[:,:,np.newaxis]
 
 	means_map = uniform_filter(GT,ws)/ws**2
 
@@ -139,24 +127,17 @@ def _scc_single(GT,P,fltr,ws):
 def scc(GT,P,fltr=[[-1,-1,-1],[-1,8,-1],[-1,-1,-1]],ws=8):
 	GT,P = _initial_check(GT,P)
 
-	if len(GT.shape) == 3:
-		coefs = np.zeros(GT.shape)
-		for i in range(GT.shape[2]):
-			coefs[:,:,i] = _scc_single(GT[:,:,i],P[:,:,i],fltr,ws)
-		return np.mean(coefs)
-	else:
-		return np.mean(_scc_single(GT,P,fltr,ws))
+	coefs = np.zeros(GT.shape)
+	for i in range(GT.shape[2]):
+		coefs[:,:,i] = _scc_single(GT[:,:,i],P[:,:,i],fltr,ws)
+	return np.mean(coefs)
+
 
 def rase(GT,P,ws=8):
 	GT,P = _initial_check(GT,P)
 
 	_,rmse_map = rmse_sw(GT,P,ws)
 
-	if len(GT.shape) == 2:
-		GT = GT[:,:,np.newaxis]
-		P = P[:,:,np.newaxis]
-		rmse_map = rmse_map[:,:,np.newaxis]
-			
 	GT_means = uniform_filter(GT, ws)/ws**2
 
 
@@ -168,3 +149,16 @@ def rase(GT,P,ws=8):
 	return np.mean(rase_map[s:-s,s:-s])
 
 
+def sam (GT,P):
+	GT,P = _initial_check(GT,P)
+
+	GT = GT.reshape((GT.shape[0]*GT.shape[1],GT.shape[2]))
+	P = P.reshape((P.shape[0]*P.shape[1],P.shape[2]))
+
+	N = GT.shape[1]
+	sam_angles = np.zeros(N)
+	for i in range(GT.shape[1]):
+		val = np.clip(np.dot(GT[:,i],P[:,i]) / (np.linalg.norm(GT[:,i])*np.linalg.norm(P[:,i])),-1,1)		
+		sam_angles[i] = np.arccos(val)
+
+	return np.mean(sam_angles)
