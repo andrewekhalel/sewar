@@ -19,7 +19,10 @@ Sewar is a python package aims to compare images' similarity using variety of pe
 ## Installation
 Just as simple as
 ```
-pip install sewar
+# install dependencies
+pip install numpy scipy
+# install sewar
+pip install --index-url https://test.pypi.org/simple/ sewar
 ```
 ## Example usage
 a simple example to use UQI
