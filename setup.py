@@ -9,7 +9,7 @@ def readme():
 setup(name='sewar',
 	version='0.1',
 	description='All image quality metrics you need in one package.',
-	long_description=readme(),
+	long_description="Kindly check our github repo for more information: https://github.com/andrewekhalel/sewar",
 	classifiers=[
 	'Development Status :: 2 - Pre-Alpha',
 	'License :: OSI Approved :: MIT License',
