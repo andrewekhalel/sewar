@@ -29,11 +29,11 @@ a simple example to use UQI
 0.9586952304831419
 ```
 ## References
-[1] "Image quality assessment: from error visibility to structural similarity." 2004)
-[2] "A universal image quality index." (2002)
-[3] "Multiscale structural similarity for image quality assessment." (2003)
-[4] "Quality of high resolution synthesised images: Is there a simple criterion?." (2000)
-[5] "A wavelet transform method to merge Landsat TM and SPOT panchromatic data." (1998)
-[6] "Fusion of multispectral and panchromatic images using improved IHS and PCA mergers based on wavelet decomposition." (2004)
-[7] "Discrimination among semi-arid landscape endmembers using the spectral angle mapper (SAM) algorithm." (1992)
-[8] "Image information and visual quality." (2006)
+[1] "Image quality assessment: from error visibility to structural similarity." 2004)<br/>
+[2] "A universal image quality index." (2002)<br/>
+[3] "Multiscale structural similarity for image quality assessment." (2003)<br/>
+[4] "Quality of high resolution synthesised images: Is there a simple criterion?." (2000)<br/>
+[5] "A wavelet transform method to merge Landsat TM and SPOT panchromatic data." (1998)<br/>
+[6] "Fusion of multispectral and panchromatic images using improved IHS and PCA mergers based on wavelet decomposition." (2004)<br/>
+[7] "Discrimination among semi-arid landscape endmembers using the spectral angle mapper (SAM) algorithm." (1992)<br/>
+[8] "Image information and visual quality." (2006)<br/>
