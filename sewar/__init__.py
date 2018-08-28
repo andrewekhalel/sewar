@@ -8,3 +8,4 @@ from .metrics import ergas
 from .metrics import scc
 from .metrics import rase
 from .metrics import sam
+from .metrics import msssim

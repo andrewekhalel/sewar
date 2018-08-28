@@ -76,30 +76,30 @@ class Testpsnr(Tester):
 
 class TestSsim(Tester):
 	def test_color(self):
-		ssim = sewar.ssim(self.read('clr'),self.read('clr'),ws=11)
+		ssim,_ = sewar.ssim(self.read('clr'),self.read('clr'),ws=11)
 		self.assertTrue(ssim == 1.)
 
 	def test_gray(self):
-		ssim = sewar.ssim(self.read('gry'),self.read('gry'),ws=11)
+		ssim,_ = sewar.ssim(self.read('gry'),self.read('gry'),ws=11)
 		self.assertTrue(ssim == 1.)
 
 	def test_color_noise(self):
-		ssim = sewar.ssim(self.read('clr'),self.read('clr_noise'),ws=11)
+		ssim,_ = sewar.ssim(self.read('clr'),self.read('clr_noise'),ws=11)
 		print (ssim)
 		self.assertTrue(abs(ssim - 0.168002) < self.eps)
 
 	def test_gray_noise(self):
-		ssim = sewar.ssim(self.read('gry'),self.read('gry_noise'),ws=11)
+		ssim,_ = sewar.ssim(self.read('gry'),self.read('gry_noise'),ws=11)
 		print (ssim)
 		self.assertTrue(abs(ssim - 0.202271) < self.eps)
 
 	def test_color_const(self):
-		ssim = sewar.ssim(self.read('clr'),self.read('clr_const'),ws=11)
+		ssim,_ = sewar.ssim(self.read('clr'),self.read('clr_const'),ws=11)
 		print (ssim)
 		self.assertTrue(abs(ssim - 0.895863) < self.eps)
 
 	def test_gray_const(self):
-		ssim = sewar.ssim(self.read('gry'),self.read('gry_const'),ws=11)
+		ssim,_ = sewar.ssim(self.read('gry'),self.read('gry_const'),ws=11)
 		print (ssim)
 		self.assertTrue(abs(ssim - 0.926078) < self.eps)
 
@@ -162,4 +162,13 @@ class TestSam(Tester):
 	def test_gray(self):
 		sam = sewar.sam(self.read('gry'),self.read('gry'))
 		self.assertTrue(sam < self.eps)
+
+class TestMsssim(Tester):
+	def test_color(self):
+		msssim = sewar.msssim(self.read('clr'),self.read('clr'))
+		self.assertTrue(msssim == 1)
+
+	def test_gray(self):
+		msssim = sewar.msssim(self.read('gry'),self.read('gry'))
+		self.assertTrue(msssim == 1)
 

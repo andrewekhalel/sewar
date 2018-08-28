@@ -79,8 +79,11 @@ def _ssim_single (GT,P,ws,C1,C2):
 
 	ssim_map = ((2*GT_P_sum_mul + C1)*(2*sigmaGT_P + C2))/((GT_sum_sq + P_sum_sq + C1)*(sigmaGT_sq + sigmaP_sq + C2))
 
+	v1 = 2 * sigmaGT_P + C2
+	v2 = sigmaGT_sq + sigmaP_sq + C2
+
 	s = int(np.round(ws/2))
-	return np.mean(ssim_map[s:-s,s:-s])
+	return np.mean(ssim_map[s:-s,s:-s]), np.mean(v1 / v2)
 
 
 def ssim (GT,P,ws=11,K1=0.01,K2=0.03,MAX=None):
@@ -91,7 +94,13 @@ def ssim (GT,P,ws=11,K1=0.01,K2=0.03,MAX=None):
 
 	C1 = (K1*MAX)**2
 	C2 = (K2*MAX)**2
-	return np.mean([_ssim_single(GT[:,:,i],P[:,:,i],ws,C1,C2) for i in range(GT.shape[2])])
+	ssims = []
+	css = []
+	for i in range(GT.shape[2]):
+		ssim,cs = _ssim_single(GT[:,:,i],P[:,:,i],ws,C1,C2)
+		ssims.append(ssim)
+		css.append(cs)
+	return np.mean(ssims),np.mean(css)
 
 
 def ergas(GT,P,h_over_l=4,ws=8):
@@ -162,3 +171,26 @@ def sam (GT,P):
 		sam_angles[i] = np.arccos(val)
 
 	return np.mean(sam_angles)
+
+def msssim (GT,P,weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333],ws=11,K1=0.01,K2=0.03,MAX=None):
+	if MAX is None:
+		MAX = np.iinfo(GT.dtype).max
+
+	GT,P = _initial_check(GT,P)
+
+	scales = len(weights)
+
+	mssim = []
+	mcs = []
+	for _ in range(scales):
+		_ssim, _cs = ssim(GT, P, ws=ws,K1=K1,K2=K2,MAX=MAX)
+		mssim.append(_ssim)
+		mcs.append(_cs)
+
+	mssim = np.array(mssim)
+	mcs = np.array(mcs)
+	
+	filtered = [uniform_filter(im, 2)/4 for im in [GT, P]]
+	GT, P = [x[::2, ::2, :] for x in filtered]
+	return (np.prod(mcs[0:scales-1] ** weights[0:scales-1]) * \
+		(mssim[scales-1] ** weights[scales-1]))
