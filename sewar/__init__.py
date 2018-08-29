@@ -1,3 +1,8 @@
+"""All image quality metrics you need in one package. 
+
+.. moduleauthor:: Andrew Khalel <andrewekhalel@gmail.com>
+
+"""
 from .metrics import mse
 from .metrics import rmse
 from .metrics import psnr

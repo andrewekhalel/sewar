@@ -27,7 +27,7 @@ pip install --index-url https://test.pypi.org/simple/ sewar
 ## Example usage
 a simple example to use UQI
 ```python
->>> from sewar import uqi
+>>> from sewar.metrics import uqi
 >>> uqi(img1,img2)
 0.9586952304831419
 ```

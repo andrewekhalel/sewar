@@ -5,14 +5,28 @@ from scipy.ndimage.filters import generic_laplace,uniform_filter,correlate
 from scipy import signal
 
 def mse (GT,P):
+	"""calculates mean squared error (mse).
+
+	:param GT: first (original) input image.
+	:param P: second (deformed) input image.
+
+	:returns:  float -- mse value.
+	"""
 	GT,P = _initial_check(GT,P)
 	return np.mean((GT.astype(np.float64)-P.astype(np.float64))**2)
 
 def rmse (GT,P):
+	"""calculates root mean squared error (rmse).
+
+	:param GT: first (original) input image.
+	:param P: second (deformed) input image.
+
+	:returns:  float -- rmse value.
+	"""
 	GT,P = _initial_check(GT,P)
 	return np.sqrt(mse(GT,P))
 
-def _rmse_sw_single (GT,P,ws):
+def _rmse_sw_single (GT,P,ws):	
 	errors = (GT-P)**2
 	errors = uniform_filter(errors,ws)
 	rmse_map = np.sqrt(errors)
@@ -20,6 +34,14 @@ def _rmse_sw_single (GT,P,ws):
 	return np.mean(rmse_map[s:-s,s:-s]),rmse_map
 
 def rmse_sw (GT,P,ws=8):
+	"""calculates root mean squared error (rmse) using sliding window.
+
+	:param GT: first (original) input image.
+	:param P: second (deformed) input image.
+	:param ws: sliding window size (default = 8).
+
+	:returns:  tuple -- rmse value,rmse map.	
+	"""
 	GT,P = _initial_check(GT,P)
 
 	rmse_map = np.zeros(GT.shape)
@@ -30,6 +52,14 @@ def rmse_sw (GT,P,ws=8):
 	return np.mean(vals),rmse_map
 
 def psnr (GT,P,MAX=None):
+	"""calculates peak signal-to-noise ratio (psnr).
+
+	:param GT: first (original) input image.
+	:param P: second (deformed) input image.
+	:param MAX: maximum value of datarange (if None, MAX is calculated using image dtype).
+
+	:returns:  float -- psnr value in dB.
+	"""
 	if MAX is None:
 		MAX = np.iinfo(GT.dtype).max
 
@@ -70,6 +100,14 @@ def _uqi_single(GT,P,ws):
 	return np.mean(q_map[s:-s,s:-s])
 
 def uqi (GT,P,ws=8):
+	"""calculates universal image quality index (uqi).
+
+	:param GT: first (original) input image.
+	:param P: second (deformed) input image.
+	:param ws: sliding window size (default = 8).
+
+	:returns:  float -- uqi value.
+	"""
 	GT,P = _initial_check(GT,P)
 	return np.mean([_uqi_single(GT[:,:,i],P[:,:,i],ws) for i in range(GT.shape[2])])
 
@@ -87,6 +125,17 @@ def _ssim_single (GT,P,ws,C1,C2):
 
 
 def ssim (GT,P,ws=11,K1=0.01,K2=0.03,MAX=None):
+	"""calculates structural similarity index (ssim).
+
+	:param GT: first (original) input image.
+	:param P: second (deformed) input image.
+	:param ws: sliding window size (default = 8).
+	:param K1: First constant for SSIM (default = 0.01).
+	:param K2: Second constant for SSIM (default = 0.03).
+	:param MAX: Maximum value of datarange (if None, MAX is calculated using image dtype).
+
+	:returns:  tuple -- ssim value, cs value.
+	"""
 	if MAX is None:
 		MAX = np.iinfo(GT.dtype).max
 
@@ -104,6 +153,15 @@ def ssim (GT,P,ws=11,K1=0.01,K2=0.03,MAX=None):
 
 
 def ergas(GT,P,h_over_l=4,ws=8):
+	"""calculates erreur relative globale adimensionnelle de synthese (ergas).
+
+	:param GT: first (original) input image.
+	:param P: second (deformed) input image.
+	:param h_over_l: ratio of high resolution to low resolution (default=4).
+	:param ws: sliding window size (default = 8).
+
+	:returns:  float -- ergas value.
+	"""
 	GT,P = _initial_check(GT,P)
 
 	rmse_map = None
@@ -134,6 +192,15 @@ def _scc_single(GT,P,fltr,ws):
 	return sigmaGT_P /(np.sqrt(sigmaGT_sq) * np.sqrt(sigmaP_sq))
 
 def scc(GT,P,fltr=[[-1,-1,-1],[-1,8,-1],[-1,-1,-1]],ws=8):
+	"""calculates spatial correlation coefficient (scc).
+
+	:param GT: first (original) input image.
+	:param P: second (deformed) input image.
+	:param fltr: high pass filter for spatial processing (default=[[-1,-1,-1],[-1,8,-1],[-1,-1,-1]]).
+	:param ws: sliding window size (default = 8).
+
+	:returns:  float -- scc value.
+	"""
 	GT,P = _initial_check(GT,P)
 
 	coefs = np.zeros(GT.shape)
@@ -143,6 +210,14 @@ def scc(GT,P,fltr=[[-1,-1,-1],[-1,8,-1],[-1,-1,-1]],ws=8):
 
 
 def rase(GT,P,ws=8):
+	"""calculates relative average spectral error (rase).
+
+	:param GT: first (original) input image.
+	:param P: second (deformed) input image.
+	:param ws: sliding window size (default = 8).
+
+	:returns:  float -- rase value.
+	"""
 	GT,P = _initial_check(GT,P)
 
 	_,rmse_map = rmse_sw(GT,P,ws)
@@ -159,6 +234,13 @@ def rase(GT,P,ws=8):
 
 
 def sam (GT,P):
+	"""calculates spectral angle mapper (sam).
+
+	:param GT: first (original) input image.
+	:param P: second (deformed) input image.
+
+	:returns:  float -- sam value.
+	"""
 	GT,P = _initial_check(GT,P)
 
 	GT = GT.reshape((GT.shape[0]*GT.shape[1],GT.shape[2]))
@@ -173,6 +255,18 @@ def sam (GT,P):
 	return np.mean(sam_angles)
 
 def msssim (GT,P,weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333],ws=11,K1=0.01,K2=0.03,MAX=None):
+	"""calculates multi-scale structural similarity index (ms-ssim).
+
+	:param GT: first (original) input image.
+	:param P: second (deformed) input image.
+	:param weights: weights for each scale (default = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]).
+	:param ws: sliding window size (default = 11).
+	:param K1: First constant for SSIM (default = 0.01).
+	:param K2: Second constant for SSIM (default = 0.03).
+	:param MAX: Maximum value of datarange (if None, MAX is calculated using image dtype).
+
+	:returns:  float -- ms-ssim value.
+	"""
 	if MAX is None:
 		MAX = np.iinfo(GT.dtype).max
 
@@ -189,7 +283,7 @@ def msssim (GT,P,weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333],ws=11,K1=0.0
 
 	mssim = np.array(mssim)
 	mcs = np.array(mcs)
-	
+
 	filtered = [uniform_filter(im, 2)/4 for im in [GT, P]]
 	GT, P = [x[::2, ::2, :] for x in filtered]
 	return (np.prod(mcs[0:scales-1] ** weights[0:scales-1]) * \
