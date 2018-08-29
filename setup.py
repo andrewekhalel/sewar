@@ -2,14 +2,15 @@ from setuptools import setup
 
 
 def readme():
-	with open('README.rst') as f:
+	with open('README.md') as f:
 		return f.read()
 
 
 setup(name='sewar',
-	version='0.1',
+	version='0.2.1',
 	description='All image quality metrics you need in one package.',
-	long_description="Kindly check our github for more information: https://github.com/andrewekhalel/sewar",
+	long_description=readme(),
+	long_description_content_type="text/markdown",
 	classifiers=[
 	'Development Status :: 2 - Pre-Alpha',
 	'License :: OSI Approved :: MIT License',
