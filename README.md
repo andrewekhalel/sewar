@@ -1,6 +1,6 @@
 # Sewar
 
-Sewar is a python package designed to compare similarity between images using different metrics. You can check the documentation [here](http://sewar.readthedocs.io/).
+Sewar is a python package for image quality assessment using different metrics. You can check documentation [here](http://sewar.readthedocs.io/).
 
 
 ## Implemented metrics
@@ -15,6 +15,9 @@ Sewar is a python package designed to compare similarity between images using di
 - [x] Relative Average Spectral Error (RASE) [[6]](https://ieeexplore.ieee.org/document/1304896/)
 - [x] Spectral Angle Mapper (SAM) [[7]](https://ntrs.nasa.gov/search.jsp?R=19940012238)
 - [ ] Visual Information Fidelity (VIF) [[8]](https://ieeexplore.ieee.org/abstract/document/1576816/)
+
+## Todo
+- [ ] Add command-line support
 
 ## Installation
 Just as simple as
