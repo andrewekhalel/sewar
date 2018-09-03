@@ -172,3 +172,8 @@ class TestMsssim(Tester):
 		msssim = sewar.msssim(self.read('gry'),self.read('gry'))
 		self.assertTrue(msssim == 1)
 
+class TestNoRef(Tester):
+	def test_color(self):
+		d = sewar.no_ref.d_lambda(self.read('clr'),self.read('clr'))
+		self.assertTrue(d == 0)
+

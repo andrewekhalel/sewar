@@ -10,9 +10,14 @@ Welcome to sewar's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-sewar
+Full reference metrics
 =================
-.. automodule:: sewar.metrics
+.. automodule:: sewar.ref
+   :members:
+
+No reference metrics
+=================
+.. automodule:: sewar.no_ref
    :members:
 
 Indices and tables

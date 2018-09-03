@@ -3,14 +3,17 @@
 .. moduleauthor:: Andrew Khalel <andrewekhalel@gmail.com>
 
 """
-from .metrics import mse
-from .metrics import rmse
-from .metrics import psnr
-from .metrics import rmse_sw
-from .metrics import uqi
-from .metrics import ssim
-from .metrics import ergas
-from .metrics import scc
-from .metrics import rase
-from .metrics import sam
-from .metrics import msssim
+from .full_ref import mse
+from .full_ref import rmse
+from .full_ref import psnr
+from .full_ref import rmse_sw
+from .full_ref import uqi
+from .full_ref import ssim
+from .full_ref import ergas
+from .full_ref import scc
+from .full_ref import rase
+from .full_ref import sam
+from .full_ref import msssim
+from .no_ref import d_lambda
+from .no_ref import d_s
+from .no_ref import qnr
