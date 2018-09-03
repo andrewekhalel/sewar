@@ -39,6 +39,8 @@ def d_s (pan,ms,fused,q=1,r=4,ws=7):
 	:returns:  float -- D_S.
 	"""
 	pan = pan.astype(np.float64)
+	fused = fused.astype(np.float64)
+	
 	pan_degraded = uniform_filter(pan, size=ws)/(ws**2)
 	pan_degraded = imresize(pan_degraded,(pan.shape[0]//r,pan.shape[1]//r))
 

@@ -1,9 +1,15 @@
 import numpy as np
 from scipy.ndimage.filters import uniform_filter
+import warnings
 
 def _initial_check(GT,P):
-	assert GT.shape == P.shape, "Supplied images have different sizes"
-	assert GT.dtype == P.dtype, "Supplied images have different dtypes"
+	assert GT.shape == P.shape, "Supplied images have different sizes " + \
+	str(GT.shape) + " and " + str(P.shape)
+	if GT.dtype != P.dtype:
+		msg = "Supplied images have different dtypes " + \
+			str(GT.dtype) + " and " + str(P.dtype)
+		warnings.warn(msg)
+	
 
 	if len(GT.shape) == 2:
 		GT = GT[:,:,np.newaxis]
