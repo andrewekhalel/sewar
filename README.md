@@ -1,3 +1,4 @@
+
 # Sewar
 
 Sewar is a python package for image quality assessment using different metrics. You can check documentation [here](http://sewar.readthedocs.io/).
@@ -18,7 +19,7 @@ Sewar is a python package for image quality assessment using different metrics. 
 
 ## Todo
 - [ ] Add command-line support
-
+- [ ] Add no reference metrics ($QNR$, $D_{\lambda}$, $D_{S}$)
 ## Installation
 Just as simple as
 ```
