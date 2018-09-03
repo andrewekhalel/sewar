@@ -7,7 +7,7 @@ def readme():
 
 
 setup(name='sewar',
-	version='0.1',
+	version='0.2',
 	description='All image quality metrics you need in one package.',
 	long_description=readme(),
 	long_description_content_type="text/markdown",
@@ -28,7 +28,7 @@ setup(name='sewar',
 	'Programming Language :: Python :: 3.6',
 	'Topic :: Multimedia :: Graphics'
 	],
-	keywords='image quality performance metric measure ergas q psnr',
+	keywords='image quality performance metric measure ergas q psnr pansharpening',
 	url='https://github.com/andrewekhalel/sewar',
 	author='Andrew Khalel',
 	author_email='andrewekhalel@gmail.com',
@@ -37,6 +37,6 @@ setup(name='sewar',
 	test_suite='nose.collector',
 	tests_require=['nose','tifffile'],
 	install_requires=[
-	'numpy', 'scipy'
+	'numpy', 'scipy' , 'Pillow'
 	],
 	zip_safe=False)

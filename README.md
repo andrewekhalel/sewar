@@ -31,7 +31,7 @@ pip install sewar
 ## Example usage
 a simple example to use UQI
 ```python
->>> from sewar.metrics import uqi
+>>> from sewar.full_ref import uqi
 >>> uqi(img1,img2)
 0.9586952304831419
 ```
