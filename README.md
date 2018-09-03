@@ -15,10 +15,10 @@ Sewar is a python package for image quality assessment using different metrics. 
 - [x] Spatial Correlation Coefficient (SCC) [[5]](https://www.tandfonline.com/doi/abs/10.1080/014311698215973)
 - [x] Relative Average Spectral Error (RASE) [[6]](https://ieeexplore.ieee.org/document/1304896/)
 - [x] Spectral Angle Mapper (SAM) [[7]](https://ntrs.nasa.gov/search.jsp?R=19940012238)
-- [x] Spectral Distortion Index (D_lambda) [[9]](https://www.ingentaconnect.com/content/asprs pers/2008/00000074/00000002/art00003)
-- [x] Spatial Distortion Index (D_S) [[9]](https://www.ingentaconnect.com/content/asprs/pers/2008/00000074/00000002/art00003)
-- [x] Quality with No Reference (QNR) [[9]](https://www.ingentaconnect.com/content/asprs/pers/2008/00000074/00000002/art00003)
-- [ ] Visual Information Fidelity (VIF) [[8]](https://ieeexplore.ieee.org/abstract/document/1576816/)
+- [x] Spectral Distortion Index (D_lambda) [[8]](https://www.ingentaconnect.com/content/asprs/pers/2008/00000074/00000002/art00003)
+- [x] Spatial Distortion Index (D_S) [[8]](https://www.ingentaconnect.com/content/asprs/pers/2008/00000074/00000002/art00003)
+- [x] Quality with No Reference (QNR) [[8]](https://www.ingentaconnect.com/content/asprs/pers/2008/00000074/00000002/art00003)
+- [ ] Visual Information Fidelity (VIF) [[9]](https://ieeexplore.ieee.org/abstract/document/1576816/)
 
 ## Todo
 - [ ] Add command-line support
@@ -43,5 +43,5 @@ a simple example to use UQI
 [5] "A wavelet transform method to merge Landsat TM and SPOT panchromatic data." (1998)<br/>
 [6] "Fusion of multispectral and panchromatic images using improved IHS and PCA mergers based on wavelet decomposition." (2004)<br/>
 [7] "Discrimination among semi-arid landscape endmembers using the spectral angle mapper (SAM) algorithm." (1992)<br/>
-[8] "Image information and visual quality." (2006)<br/>
-[9] "Multispectral and panchromatic data fusion assessment without reference." (2008)<br/>
+[8] "Multispectral and panchromatic data fusion assessment without reference." (2008)<br/>
+[9] "Image information and visual quality." (2006)<br/>
