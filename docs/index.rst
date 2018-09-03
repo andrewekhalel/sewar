@@ -11,12 +11,12 @@ Welcome to sewar's documentation!
    :caption: Contents:
 
 Full reference metrics
-=================
-.. automodule:: sewar.ref
+======================
+.. automodule:: sewar.full_ref
    :members:
 
 No reference metrics
-=================
+====================
 .. automodule:: sewar.no_ref
    :members:
 

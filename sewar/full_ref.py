@@ -152,12 +152,12 @@ def ssim (GT,P,ws=11,K1=0.01,K2=0.03,MAX=None):
 	return np.mean(ssims),np.mean(css)
 
 
-def ergas(GT,P,h_over_l=4,ws=8):
+def ergas(GT,P,r=4,ws=8):
 	"""calculates erreur relative globale adimensionnelle de synthese (ergas).
 
 	:param GT: first (original) input image.
 	:param P: second (deformed) input image.
-	:param h_over_l: ratio of high resolution to low resolution (default=4).
+	:param r: ratio of high resolution to low resolution (default=4).
 	:param ws: sliding window size (default = 8).
 
 	:returns:  float -- ergas value.

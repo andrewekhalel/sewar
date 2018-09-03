@@ -15,11 +15,13 @@ Sewar is a python package for image quality assessment using different metrics. 
 - [x] Spatial Correlation Coefficient (SCC) [[5]](https://www.tandfonline.com/doi/abs/10.1080/014311698215973)
 - [x] Relative Average Spectral Error (RASE) [[6]](https://ieeexplore.ieee.org/document/1304896/)
 - [x] Spectral Angle Mapper (SAM) [[7]](https://ntrs.nasa.gov/search.jsp?R=19940012238)
+- [x] Spectral Distortion Index (D_lambda) [[9]](https://www.ingentaconnect.com/content/asprs pers/2008/00000074/00000002/art00003)
+- [x] Spatial Distortion Index (D_S) [[9]](https://www.ingentaconnect.com/content/asprs/pers/2008/00000074/00000002/art00003)
+- [x] Quality with No Reference (QNR) [[9]](https://www.ingentaconnect.com/content/asprs/pers/2008/00000074/00000002/art00003)
 - [ ] Visual Information Fidelity (VIF) [[8]](https://ieeexplore.ieee.org/abstract/document/1576816/)
 
 ## Todo
 - [ ] Add command-line support
-- [ ] Add no reference metrics [[9]](https://www.ingentaconnect.com/content/asprs/pers/2008/00000074/00000002/art00003)
 
 ## Installation
 Just as simple as
