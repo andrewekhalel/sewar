@@ -19,7 +19,8 @@ Sewar is a python package for image quality assessment using different metrics. 
 
 ## Todo
 - [ ] Add command-line support
-- [ ] Add no reference metrics ($QNR$, $D_{\lambda}$, $D_{S}$)
+- [ ] Add no reference metrics [[9]](https://www.ingentaconnect.com/content/asprs/pers/2008/00000074/00000002/art00003)
+
 ## Installation
 Just as simple as
 ```
@@ -41,3 +42,4 @@ a simple example to use UQI
 [6] "Fusion of multispectral and panchromatic images using improved IHS and PCA mergers based on wavelet decomposition." (2004)<br/>
 [7] "Discrimination among semi-arid landscape endmembers using the spectral angle mapper (SAM) algorithm." (1992)<br/>
 [8] "Image information and visual quality." (2006)<br/>
+[9] "Multispectral and panchromatic data fusion assessment without reference." (2008)<br/>
