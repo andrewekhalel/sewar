@@ -28,7 +28,7 @@ def rmse (GT,P):
 
 def _rmse_sw_single (GT,P,ws):	
 	errors = (GT-P)**2
-	errors = uniform_filter(errors,ws)
+	errors = uniform_filter(errors.astype(np.float64),ws)
 	rmse_map = np.sqrt(errors)
 	s = int(np.round((ws/2)))
 	return np.mean(rmse_map[s:-s,s:-s]),rmse_map
@@ -78,11 +78,11 @@ def _uqi_single(GT,P,ws):
 	P_sq = P*P
 	GT_P = GT*P
 
-	GT_sum = uniform_filter(GT, ws)    
-	P_sum =  uniform_filter(P, ws)     
-	GT_sq_sum = uniform_filter(GT_sq, ws)  
-	P_sq_sum = uniform_filter(P_sq, ws)  
-	GT_P_sum = uniform_filter(GT_P, ws) 
+	GT_sum = uniform_filter(GT.astype(np.float64), ws)    
+	P_sum =  uniform_filter(P.astype(np.float64), ws)     
+	GT_sq_sum = uniform_filter(GT_sq.astype(np.float64), ws)  
+	P_sq_sum = uniform_filter(P_sq.astype(np.float64), ws)  
+	GT_P_sum = uniform_filter(GT_P.astype(np.float64), ws) 
 
 	GT_P_sum_mul = GT_sum*P_sum
 	GT_P_sum_sq_sum_mul = GT_sum*GT_sum + P_sum*P_sum
@@ -169,7 +169,7 @@ def ergas(GT,P,r=4,ws=8):
 
 	_,rmse_map = rmse_sw(GT,P,ws)
 
-	means_map = uniform_filter(GT,ws)/ws**2
+	means_map = uniform_filter(GT.astype(np.float64),ws)/ws**2
 
 	# Avoid division by zero
 	idx = means_map == 0
@@ -186,8 +186,8 @@ def _scc_single(GT,P,fltr,ws):
 	def _scc_filter(input, axis, output, mode, cval):
 		return correlate(input, fltr , output, mode, cval, 0)
 
-	GT_hp = generic_laplace(GT, _scc_filter)
-	P_hp = generic_laplace(P, _scc_filter)
+	GT_hp = generic_laplace(GT.astype(np.float64), _scc_filter)
+	P_hp = generic_laplace(P.astype(np.float64), _scc_filter)
 	sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT_hp,P_hp,ws)
 	return sigmaGT_P /(np.sqrt(sigmaGT_sq) * np.sqrt(sigmaP_sq))
 
@@ -222,7 +222,7 @@ def rase(GT,P,ws=8):
 
 	_,rmse_map = rmse_sw(GT,P,ws)
 
-	GT_means = uniform_filter(GT, ws)/ws**2
+	GT_means = uniform_filter(GT.astype(np.float64), ws)/ws**2
 
 
 	N = GT.shape[2]
@@ -284,7 +284,7 @@ def msssim (GT,P,weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333],ws=11,K1=0.0
 	mssim = np.array(mssim)
 	mcs = np.array(mcs)
 
-	filtered = [uniform_filter(im, 2)/4 for im in [GT, P]]
+	filtered = [uniform_filter(im.astype(np.float64), 2)/4 for im in [GT, P]]
 	GT, P = [x[::2, ::2, :] for x in filtered]
 	return (np.prod(mcs[0:scales-1] ** weights[0:scales-1]) * \
 		(mssim[scales-1] ** weights[scales-1]))
