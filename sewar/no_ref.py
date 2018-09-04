@@ -19,9 +19,9 @@ def d_lambda (ms,fused,p=1):
 	M2 = np.zeros((L,L))
 
 	for l in range(L):
-		for r in range(L):
-			M1[l,r] = uqi(fused[:,:,l],fused[:,:,r])
-			M2[l,r] = uqi(ms[:,:,l],ms[:,:,r])
+		for r in range(l,L):
+			M1[l,r] = M1[r,l] = uqi(fused[:,:,l],fused[:,:,r])
+			M2[l,r] = M2[r,l] = uqi(ms[:,:,l],ms[:,:,r])
 
 	diff = np.abs(M1 - M2)**p
 	return (1./(L*(L-1)) * np.sum(diff))**(1./p)
@@ -40,7 +40,7 @@ def d_s (pan,ms,fused,q=1,r=4,ws=7):
 	"""
 	pan = pan.astype(np.float64)
 	fused = fused.astype(np.float64)
-	
+
 	pan_degraded = uniform_filter(pan.astype(np.float64), size=ws)/(ws**2)
 	pan_degraded = imresize(pan_degraded,(pan.shape[0]//r,pan.shape[1]//r))
 
