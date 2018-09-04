@@ -177,7 +177,7 @@ def ergas(GT,P,r=4,ws=8):
 	rmse_map[idx] = 0
 
 	ergasroot = np.sqrt(np.sum(((rmse_map**2)/(means_map**2)),axis=2)/nb)
-	ergas_map = 100*h_over_l*ergasroot;
+	ergas_map = 100*r*ergasroot;
 
 	s = int(np.round(ws/2))
 	return np.mean(ergas_map[s:-s,s:-s])
