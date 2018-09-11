@@ -288,3 +288,13 @@ def msssim (GT,P,weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333],ws=11,K1=0.0
 	GT, P = [x[::2, ::2, :] for x in filtered]
 	return (np.prod(mcs[0:scales-1] ** weights[0:scales-1]) * \
 		(mssim[scales-1] ** weights[scales-1]))
+
+def vifp(GT,P,sigma_nsq=2):
+	"""calculates Pixel Based Visual Information Fidelity (vif-p).
+
+	:param GT: first (original) input image.
+	:param P: second (deformed) input image.
+	
+	:returns:  float -- vif-p value.
+	"""
+	pass
