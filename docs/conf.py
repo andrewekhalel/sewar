@@ -25,7 +25,7 @@ copyright = '2018, Andrew Khalel'
 author = 'Andrew Khalel'
 
 # The short X.Y version
-version = ''
+version = '0.2'
 # The full version, including alpha/beta/rc tags
 release = '0.2'
 

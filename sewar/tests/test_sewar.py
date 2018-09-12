@@ -177,3 +177,12 @@ class TestNoRef(Tester):
 		d = sewar.no_ref.d_lambda(self.read('clr'),self.read('clr'))
 		self.assertTrue(d == 0)
 
+class TestVIF(Tester):
+	def test_color(self):
+		v = sewar.full_ref.vifp(self.read('clr'),self.read('clr'))
+		print(v)
+		self.assertTrue((1-v)<self.eps )
+
+	def test_gray(self):
+		v = sewar.full_ref.vifp(self.read('gry'),self.read('gry'))
+		self.assertTrue((1-v)<self.eps)

@@ -14,6 +14,7 @@ from .full_ref import scc
 from .full_ref import rase
 from .full_ref import sam
 from .full_ref import msssim
+from .full_ref import vifp
 from .no_ref import d_lambda
 from .no_ref import d_s
 from .no_ref import qnr

@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function
 import numpy as np
-from .utils import _initial_check,_get_sigmas,_get_sums
-from scipy.ndimage.filters import generic_laplace,uniform_filter,correlate
+from .utils import _initial_check,_get_sigmas,_get_sums,Filter
+from scipy.ndimage.filters import generic_laplace,uniform_filter,correlate,gaussian_filter
 from scipy import signal
 
 def mse (GT,P):
@@ -112,8 +112,8 @@ def uqi (GT,P,ws=8):
 	return np.mean([_uqi_single(GT[:,:,i],P[:,:,i],ws) for i in range(GT.shape[2])])
 
 def _ssim_single (GT,P,ws,C1,C2):
-	GT_sum_sq,P_sum_sq,GT_P_sum_mul = _get_sums(GT,P,ws)
-	sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT,P,ws)
+	GT_sum_sq,P_sum_sq,GT_P_sum_mul = _get_sums(GT,P,fltr=Filter.UNIFORM,ws=ws)
+	sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT,P,fltr=Filter.UNIFORM,ws=ws)
 
 	ssim_map = ((2*GT_P_sum_mul + C1)*(2*sigmaGT_P + C2))/((GT_sum_sq + P_sum_sq + C1)*(sigmaGT_sq + sigmaP_sq + C2))
 
@@ -188,7 +188,7 @@ def _scc_single(GT,P,fltr,ws):
 
 	GT_hp = generic_laplace(GT.astype(np.float64), _scc_filter)
 	P_hp = generic_laplace(P.astype(np.float64), _scc_filter)
-	sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT_hp,P_hp,ws)
+	sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT_hp,P_hp,fltr=Filter.UNIFORM,ws=ws)
 	return sigmaGT_P /(np.sqrt(sigmaGT_sq) * np.sqrt(sigmaP_sq))
 
 def scc(GT,P,fltr=[[-1,-1,-1],[-1,8,-1],[-1,-1,-1]],ws=8):
@@ -289,12 +289,54 @@ def msssim (GT,P,weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333],ws=11,K1=0.0
 	return (np.prod(mcs[0:scales-1] ** weights[0:scales-1]) * \
 		(mssim[scales-1] ** weights[scales-1]))
 
+def _vifp_single(GT,P,sigma_nsq):
+	EPS = 1e-10
+	num =0.0
+	den =0.0
+	for scale in range(1,5):
+		N=2.0**(4-scale+1)+1
+		n = int(np.round(N/2.))
+		S = N/5
+		T = (((N - 1)/2)-0.5)/S
+		if scale >1:
+			gt=gaussian_filter(GT,sigma=S,truncate=T)[::2, ::2]
+			p=gaussian_filter(P,sigma=S,truncate=T)[::2, ::2]
+		else:
+			gt= GT[:]
+			p= P[:]
+		GT_sum_sq,P_sum_sq,GT_P_sum_mul =_get_sums(gt,p,fltr=Filter.GAUSSIAN,s=S,t=T)
+		sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(gt,p,fltr=Filter.GAUSSIAN,s=S,t=T)
+	
+		sigmaGT_sq[sigmaGT_sq<0]=0
+		sigmaP_sq[sigmaP_sq<0]=0
+
+		g=sigmaGT_P /(sigmaGT_sq+EPS)
+		sv_sq=sigmaP_sq-g*sigmaGT_P
+		
+		g[sigmaGT_sq<EPS]=0
+		sv_sq[sigmaGT_sq<EPS]=sigmaP_sq[sigmaGT_sq<EPS]
+		sigmaGT_sq[sigmaGT_sq<EPS]=0
+		
+		g[sigmaP_sq<EPS]=0
+		sv_sq[sigmaP_sq<EPS]=0
+		
+		sv_sq[g<0]=sigmaP_sq[g<0]
+		g[g<0]=0
+		sv_sq[sv_sq<=EPS]=EPS
+		
+		
+		num += np.sum(np.log10(1.0+(g**2.)*sigmaGT_sq/(sv_sq+sigma_nsq))[n:-n,n:-n])
+		den += np.sum(np.log10(1.0+sigmaGT_sq/sigma_nsq)[n:-n,n:-n])
+	return num/den
+
 def vifp(GT,P,sigma_nsq=2):
 	"""calculates Pixel Based Visual Information Fidelity (vif-p).
 
 	:param GT: first (original) input image.
 	:param P: second (deformed) input image.
-	
+	:param sigma_nsq: variance of the visual noise (default = 2)
+
 	:returns:  float -- vif-p value.
 	"""
-	pass
+	GT,P = _initial_check(GT,P)
+	return np.mean([_vifp_single(GT[:,:,i],P[:,:,i],sigma_nsq) for i in range(GT.shape[2])])
