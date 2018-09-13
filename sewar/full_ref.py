@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function
 import numpy as np
-from .utils import _initial_check,_get_sigmas,_get_sums,Filter
+from .utils import _initial_check,_get_sigmas,_get_sums,Filter,_replace_value
 from scipy.ndimage.filters import generic_laplace,uniform_filter,correlate,gaussian_filter
 from scipy import signal
 
@@ -183,13 +183,19 @@ def ergas(GT,P,r=4,ws=8):
 	return np.mean(ergas_map[s:-s,s:-s])
 
 def _scc_single(GT,P,fltr,ws):
-	def _scc_filter(input, axis, output, mode, cval):
-		return correlate(input, fltr , output, mode, cval, 0)
+	def _scc_filter(inp, axis, output, mode, cval):
+		return correlate(inp, fltr , output, mode, cval, 0)
 
 	GT_hp = generic_laplace(GT.astype(np.float64), _scc_filter)
 	P_hp = generic_laplace(P.astype(np.float64), _scc_filter)
 	sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT_hp,P_hp,fltr=Filter.UNIFORM,ws=ws)
-	return sigmaGT_P /(np.sqrt(sigmaGT_sq) * np.sqrt(sigmaP_sq))
+
+	den = np.sqrt(sigmaGT_sq) * np.sqrt(sigmaP_sq)
+	idx = (den==0)
+	den = _replace_value(den,0,1)
+	scc = sigmaGT_P / den
+	scc[idx] = 0
+	return scc
 
 def scc(GT,P,fltr=[[-1,-1,-1],[-1,8,-1],[-1,-1,-1]],ws=8):
 	"""calculates spatial correlation coefficient (scc).
