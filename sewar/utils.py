@@ -51,3 +51,14 @@ def _get_sigmas(GT,P,fltr:Filter,**kwargs):
 		sigmaGT_P = gaussian_filter(GT*P, sigma=kwargs['s'], truncate=kwargs['t']) - GT_P_sum_mul
 	return sigmaGT_sq,sigmaP_sq,sigmaGT_P
 
+def _str_to_array(str):
+	pattern = r'''# Match (mandatory) whitespace between...
+			(?<=\]) # ] and
+			\s+
+			(?= \[) # [, or
+			|
+			(?<=[^\[\]\s]) 
+			\s+
+			(?= [^\[\]\s]) # two non-bracket non-whitespace characters
+			'''
+	return np.array(ast.literal_eval(str))

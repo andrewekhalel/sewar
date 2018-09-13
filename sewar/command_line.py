@@ -4,6 +4,7 @@ from PIL import Image
 import numpy as np
 import re
 import ast
+from .utils import _str_to_array
 
 metrics = dict(mse=sewar.full_ref.mse,
 				rmse=sewar.full_ref.rmse,
@@ -27,25 +28,13 @@ epilog = """You can add any extra argument needed for the function (check docume
 		"""
 
 
-def str_to_array(str):
-	pattern = r'''# Match (mandatory) whitespace between...
-			(?<=\]) # ] and
-			\s+
-			(?= \[) # [, or
-			|
-			(?<=[^\[\]\s]) 
-			\s+
-			(?= [^\[\]\s]) # two non-bracket non-whitespace characters
-			'''
-	return np.array(ast.literal_eval(str))
-
 extra_args = dict(ws=int,
 				MAX=float,
 				K1=float,
 				K2=float,
 				r=int,
-				fltr=str_to_array,
-				weights=str_to_array,
+				fltr=_str_to_array,
+				weights=_str_to_array,
 				sigma_nsq=float)
 
 def main():	
