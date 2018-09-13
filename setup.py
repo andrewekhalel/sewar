@@ -39,4 +39,8 @@ setup(name='sewar',
 	install_requires=[
 	'numpy', 'scipy' , 'Pillow'
 	],
+	entry_points="""
+    [console_scripts]
+    sewar = sewar.command_line:main
+    """,
 	zip_safe=False)
