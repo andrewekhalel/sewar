@@ -1,26 +1,6 @@
-from unittest import TestCase
-
-import numpy as np
-import tifffile as tif
+from .tester import Tester
 import sewar
-
-import os
-
-class Tester(TestCase):
-	def __init__(self, *args, **kwargs):
-		super(Tester, self).__init__(*args, **kwargs)
-		self.RESOURCES_DIR = os.path.join(os.path.dirname(__file__),'res')
-		self.IMAGES = {'clr':'lena512color.tiff',
-						'clr_noise': 'lena512color_noise.tiff',
-						'clr_const': 'lena512color_constant.tiff',
-						'gry': 'lena512gray.tiff',
-						'gry_noise': 'lena512gray_noise.tiff',
-						'gry_const': 'lena512gray_constant.tiff',
-						}
-		self.eps = 10e-4
-
-	def read(self,key):
-		return tif.imread(os.path.join(self.RESOURCES_DIR,self.IMAGES[key]))
+import numpy as np
 
 class TestMse(Tester):
 	def test_color(self):

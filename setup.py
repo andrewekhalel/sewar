@@ -35,7 +35,7 @@ setup(name='sewar',
 	license='MIT',
 	packages=['sewar'],
 	test_suite='nose.collector',
-	tests_require=['nose','tifffile'],
+	tests_require=['nose','Pillow'],
 	install_requires=[
 	'numpy', 'scipy' , 'Pillow'
 	],
