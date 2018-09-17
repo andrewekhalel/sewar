@@ -17,10 +17,10 @@ metrics = dict(mse=sewar.full_ref.mse,
 				rase=sewar.full_ref.rase,
 				sam=sewar.full_ref.sam,
 				msssim=sewar.full_ref.msssim,
-				vifp=sewar.full_ref.vifp,
-				d_lambda=sewar.no_ref.d_lambda,
-				d_s=sewar.no_ref.d_s,
-				qnr=sewar.no_ref.qnr)
+				vifp=sewar.full_ref.vifp)
+				#d_lambda=sewar.no_ref.d_lambda,
+				#d_s=sewar.no_ref.d_s,
+				#qnr=sewar.no_ref.qnr)
 
 desc = """Description: command-line interface to sewar: image quality package"""
 epilog = """You can add any extra argument needed for the function (check documentation for more info).

@@ -1,4 +1,5 @@
 
+
 # Sewar
 
 Sewar is a python package for image quality assessment using different metrics. You can check documentation [here](http://sewar.readthedocs.io/).
@@ -21,7 +22,7 @@ Sewar is a python package for image quality assessment using different metrics. 
 - [x] Visual Information Fidelity (VIF) [[9]](https://ieeexplore.ieee.org/abstract/document/1576816/)
 
 ## Todo
-- [ ] Add command-line support
+- [ ] Add command-line support for No-reference metrics
 
 ## Installation
 Just as simple as
@@ -34,6 +35,20 @@ a simple example to use UQI
 >>> from sewar.full_ref import uqi
 >>> uqi(img1,img2)
 0.9586952304831419
+```
+
+## Example usage for command line interface
+```
+sewar [metric] [GT path] [P path] (any extra parameters)
+```
+An example to use SSIM
+```shell
+foo@bar:~$ sewar ssim images/ground_truth.tif images/deformed.tif -ws 13
+ssim : 0.8947009811410856
+```
+Available metrics list
+```
+mse, rmse, psnr, rmse_sw, uqi, ssim, ergas, scc, rase, sam, msssim, vifp
 ```
 ## References
 [1] "Image quality assessment: from error visibility to structural similarity." 2004)<br/>
