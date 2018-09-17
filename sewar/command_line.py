@@ -27,7 +27,6 @@ epilog = """You can add any extra argument needed for the function (check docume
 			Example: passing window size (ws) would be as [-ws 11]
 		"""
 
-
 extra_args = dict(ws=int,
 				MAX=float,
 				K1=float,
@@ -37,7 +36,7 @@ extra_args = dict(ws=int,
 				weights=_str_to_array,
 				sigma_nsq=float)
 
-def main():	
+def parse_args():
 	parser = argparse.ArgumentParser(prog='sewar',description=desc,epilog=epilog)
 	parser.add_argument('metric',
 					choices=metrics.keys(),
@@ -54,7 +53,23 @@ def main():
 		key =unknown[i][1:]
 		val =unknown[i+1]
 		kwargs[key] = extra_args[key](val)
+	return args,kwargs
 
-	gt = np.asarray(Image.open(args.GT))
-	p = np.asarray(Image.open(args.P))
-	print(args.metric,":",metrics[args.metric](gt,p,**kwargs))
+def cli(args=None):	
+	if args is None:
+		args,kwargs = parse_args()
+		gt = np.asarray(Image.open(args.GT))
+		p = np.asarray(Image.open(args.P))
+		print(args.metric,":",metrics[args.metric](gt,p,**kwargs))
+	else:
+		# for testing purposes
+		gt = np.asarray(Image.open(args['GT']))
+		p = np.asarray(Image.open(args['P']))
+		met = args['metric']
+		del args['GT']
+		del args['P']
+		del args['metric']
+		return metrics[met](gt,p,**args)
+
+def main():
+	cli()
