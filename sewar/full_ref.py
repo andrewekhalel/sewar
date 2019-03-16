@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function
 import numpy as np
 from .utils import _initial_check,_get_sigmas,_get_sums,Filter,_replace_value
-from scipy.ndimage.filters import generic_laplace,uniform_filter,correlate,gaussian_filter
+from scipy.ndimage import generic_laplace,uniform_filter,correlate,gaussian_filter
 from scipy import signal
 
 def mse (GT,P):
@@ -113,7 +113,8 @@ def uqi (GT,P,ws=8):
 
 def _ssim_single (GT,P,ws,C1,C2):
 	GT_sum_sq,P_sum_sq,GT_P_sum_mul = _get_sums(GT,P,fltr=Filter.UNIFORM,ws=ws)
-	sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT,P,fltr=Filter.UNIFORM,ws=ws)
+	sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT,P,fltr=Filter.UNIFORM,ws=ws,
+												sums=(GT_sum_sq,P_sum_sq,GT_P_sum_mul))
 
 	ssim_map = ((2*GT_P_sum_mul + C1)*(2*sigmaGT_P + C2))/((GT_sum_sq + P_sum_sq + C1)*(sigmaGT_sq + sigmaP_sq + C2))
 
@@ -304,18 +305,20 @@ def _vifp_single(GT,P,sigma_nsq):
 	den =0.0
 	for scale in range(1,5):
 		N=2.0**(4-scale+1)+1
-		n = int(np.round(N/2.))
+		n = int((N-1)/2)
 		S = N/5
 		T = (((N - 1)/2)-0.5)/S
+
 		if scale >1:
-			gt=gaussian_filter(GT,sigma=S,truncate=T)[::2, ::2]
-			p=gaussian_filter(P,sigma=S,truncate=T)[::2, ::2]
-		else:
-			gt= GT[:]
-			p= P[:]
-		GT_sum_sq,P_sum_sq,GT_P_sum_mul =_get_sums(gt,p,fltr=Filter.GAUSSIAN,s=S,t=T)
-		sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(gt,p,fltr=Filter.GAUSSIAN,s=S,t=T)
-	
+			GT=gaussian_filter(GT,sigma=S,truncate=T)[n:-n,n:-n][::2, ::2]
+			P=gaussian_filter(P,sigma=S,truncate=T)[n:-n,n:-n][::2, ::2]
+
+		GT_sum_sq,P_sum_sq,GT_P_sum_mul =_get_sums(GT,P,fltr=Filter.GAUSSIAN,
+													norm=True,valid=n,s=S,t=T,n=N)
+		sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT,P,fltr=Filter.GAUSSIAN,
+													norm=True,valid=n,s=S,t=T,n=N,
+													sums=(GT_sum_sq,P_sum_sq,GT_P_sum_mul))
+
 		sigmaGT_sq[sigmaGT_sq<0]=0
 		sigmaP_sq[sigmaP_sq<0]=0
 
@@ -333,9 +336,9 @@ def _vifp_single(GT,P,sigma_nsq):
 		g[g<0]=0
 		sv_sq[sv_sq<=EPS]=EPS
 		
-		
-		num += np.sum(np.log10(1.0+(g**2.)*sigmaGT_sq/(sv_sq+sigma_nsq))[n:-n,n:-n])
-		den += np.sum(np.log10(1.0+sigmaGT_sq/sigma_nsq)[n:-n,n:-n])
+	
+		num += np.sum(np.log10(1.0+(g**2.)*sigmaGT_sq/(sv_sq+sigma_nsq)))
+		den += np.sum(np.log10(1.0+sigmaGT_sq/sigma_nsq))
 	return num/den
 
 def vifp(GT,P,sigma_nsq=2):
@@ -348,4 +351,5 @@ def vifp(GT,P,sigma_nsq=2):
 	:returns:  float -- vif-p value.
 	"""
 	GT,P = _initial_check(GT,P)
+	# GT,P = GT[:,:,np.newaxis],P[:,:,np.newaxis]
 	return np.mean([_vifp_single(GT[:,:,i],P[:,:,i],sigma_nsq) for i in range(GT.shape[2])])

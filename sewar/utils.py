@@ -26,30 +26,65 @@ def _replace_value(array,value,replace_with):
     array[array == value] = replace_with
     return array
 
-def _get_sums(GT,P,fltr:Filter,**kwargs):
+def _get_sums(GT,P,fltr,valid=None,norm=False,**kwargs):
 	if fltr == Filter.UNIFORM:
 		GT_sum = uniform_filter(GT, size=kwargs['ws'])
 		P_sum =  uniform_filter(P, size=kwargs['ws']) 
 	elif fltr == Filter.GAUSSIAN:
 		GT_sum = gaussian_filter(GT, sigma=kwargs['s'], truncate=kwargs['t'])
 		P_sum =  gaussian_filter(P, sigma=kwargs['s'], truncate=kwargs['t']) 
+	
+	if norm:
+		N = kwargs['n']
+		x, y = np.mgrid[-N//2 + 1:N//2 + 1, -N//2 + 1:N//2 + 1]
+		g = np.exp(-((x**2 + y**2)/(2.0*kwargs['s']**2)))
+		den = g.sum()
+		if den != 0:
+			GT_sum /= den
+			P_sum /= den
+
+	if valid is not None:
+		GT_sum = GT_sum[valid:-valid,valid:-valid]
+		P_sum = P_sum[valid:-valid,valid:-valid]
 
 	GT_sum_sq = GT_sum*GT_sum
 	P_sum_sq = P_sum*P_sum
 	GT_P_sum_mul = GT_sum*P_sum 
 	return GT_sum_sq,P_sum_sq,GT_P_sum_mul
 
-def _get_sigmas(GT,P,fltr:Filter,**kwargs):
-	GT_sum_sq,P_sum_sq,GT_P_sum_mul = _get_sums(GT,P,fltr,**kwargs)
+def _get_sigmas(GT,P,fltr,valid=None,norm=False,**kwargs):
+	if 'sums' in kwargs:
+		GT_sum_sq,P_sum_sq,GT_P_sum_mul = kwargs['sums']
+	else:
+		GT_sum_sq,P_sum_sq,GT_P_sum_mul = _get_sums(GT,P,fltr,valid,norm,**kwargs)
+
 	if fltr == Filter.UNIFORM:
-		sigmaGT_sq = uniform_filter(GT*GT, size=kwargs['ws']) - GT_sum_sq
-		sigmaP_sq = uniform_filter(P*P, size=kwargs['ws']) - P_sum_sq
-		sigmaGT_P = uniform_filter(GT*P, size=kwargs['ws']) - GT_P_sum_mul
+		sigmaGT_sq = uniform_filter(GT*GT, size=kwargs['ws'])
+		sigmaP_sq = uniform_filter(P*P, size=kwargs['ws'])
+		sigmaGT_P = uniform_filter(GT*P, size=kwargs['ws']) 
 	elif fltr == Filter.GAUSSIAN:
-		sigmaGT_sq = gaussian_filter(GT*GT, sigma=kwargs['s'], truncate=kwargs['t']) - GT_sum_sq
-		sigmaP_sq = gaussian_filter(P*P, sigma=kwargs['s'], truncate=kwargs['t']) - P_sum_sq
-		sigmaGT_P = gaussian_filter(GT*P, sigma=kwargs['s'], truncate=kwargs['t']) - GT_P_sum_mul
-	return sigmaGT_sq,sigmaP_sq,sigmaGT_P
+		sigmaGT_sq = gaussian_filter(GT*GT, sigma=kwargs['s'], truncate=kwargs['t']) 
+		sigmaP_sq = gaussian_filter(P*P, sigma=kwargs['s'], truncate=kwargs['t']) 
+		sigmaGT_P = gaussian_filter(GT*P, sigma=kwargs['s'], truncate=kwargs['t']) 
+
+	if norm:
+		N = kwargs['n']
+		x, y = np.mgrid[-N//2 + 1:N//2 + 1, -N//2 + 1:N//2 + 1]
+		g = np.exp(-((x**2 + y**2)/(2.0*kwargs['s']**2)))
+		den = g.sum()
+		if den != 0:
+			sigmaGT_sq /= den
+			sigmaP_sq /= den
+			sigmaGT_P /= den
+
+	if valid is not None:
+		sigmaGT_sq = sigmaGT_sq[valid:-valid,valid:-valid]
+		sigmaP_sq = sigmaP_sq[valid:-valid,valid:-valid]
+		sigmaGT_P = sigmaGT_P[valid:-valid,valid:-valid]
+
+	return sigmaGT_sq - GT_sum_sq, \
+			sigmaP_sq - P_sum_sq, \
+			sigmaGT_P - GT_P_sum_mul
 
 def _str_to_array(str):
 	pattern = r'''# Match (mandatory) whitespace between...
