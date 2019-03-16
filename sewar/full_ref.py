@@ -291,13 +291,14 @@ def msssim (GT,P,weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333],ws=11,K1=0.0
 		mssim.append(_ssim)
 		mcs.append(_cs)
 
+		filtered = [uniform_filter(im, 2) for im in [GT, P]]
+		GT, P = [x[::2, ::2, :] for x in filtered]
+
 	mssim = np.array(mssim)
 	mcs = np.array(mcs)
 
-	filtered = [uniform_filter(im, 2)/4 for im in [GT, P]]
-	GT, P = [x[::2, ::2, :] for x in filtered]
-	return (np.prod(mcs[0:scales-1] ** weights[0:scales-1]) * \
-		(mssim[scales-1] ** weights[scales-1]))
+	return (np.prod(mcs[0:scales-1] ** weights[0:scales-1]) * (mssim[scales-1] ** weights[scales-1]))
+
 
 def _vifp_single(GT,P,sigma_nsq):
 	EPS = 1e-10
