@@ -64,7 +64,7 @@ class TestSscCli(Tester):
 					P=self.path('clr'),
 					metric='scc',
 					ws=9,
-					fltr=[[-2,-2,-2],[-2,16,-2],[-2,-2,-2]])
+					win=[[-2,-2,-2],[-2,16,-2],[-2,-2,-2]])
 		scc = sewar.cli(args)
 		self.assertTrue(scc == 1)
 

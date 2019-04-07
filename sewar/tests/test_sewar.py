@@ -152,6 +152,11 @@ class TestMsssim(Tester):
 		msssim = sewar.msssim(self.read('gry'),self.read('gry'))
 		self.assertTrue(msssim == 1)
 
+	def test_against_matlab(self):
+		msssim = sewar.msssim(self.read('gry'),self.read('gry_noise'))
+		print (msssim)
+		self.assertTrue(abs(0.631429952770791-msssim)<self.eps)
+
 class TestNoRef(Tester):
 	def test_color(self):
 		d = sewar.no_ref.d_lambda(self.read('clr'),self.read('clr'))
@@ -170,10 +175,10 @@ class TestVIF(Tester):
 	def test_gray_noise(self):
 		v = sewar.full_ref.vifp(self.read('gry'),self.read('gry_noise'))
 		print (v)
-		self.assertTrue((0.424146783001092-v)<self.eps)
+		self.assertTrue(abs(0.120490551257006-v)<self.eps)
 
 	def test_gray_const(self):
 		v = sewar.full_ref.vifp(self.read('gry'),self.read('gry_const'))
 		print (v)
-		self.assertTrue((0.988514137512923-v)<self.eps)
+		self.assertTrue(abs(0.981413452665522-v)<self.eps)
 
