@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function
 import numpy as np
-from .utils import _initial_check,_get_sigmas,_get_sums,Filter,_replace_value
+from .utils import _initial_check,_get_sigmas,_get_sums,Filter,_replace_value,fspecial,filter2,_power_complex
 from scipy.ndimage import generic_laplace,uniform_filter,correlate,gaussian_filter
 from scipy import signal
 
@@ -111,21 +111,23 @@ def uqi (GT,P,ws=8):
 	GT,P = _initial_check(GT,P)
 	return np.mean([_uqi_single(GT[:,:,i],P[:,:,i],ws) for i in range(GT.shape[2])])
 
-def _ssim_single (GT,P,ws,C1,C2):
-	GT_sum_sq,P_sum_sq,GT_P_sum_mul = _get_sums(GT,P,fltr=Filter.UNIFORM,ws=ws)
-	sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT,P,fltr=Filter.UNIFORM,ws=ws,
-												sums=(GT_sum_sq,P_sum_sq,GT_P_sum_mul))
+def _ssim_single (GT,P,ws,C1,C2,fltr_specs,mode):
+	win = fspecial(**fltr_specs)
+
+	GT_sum_sq,P_sum_sq,GT_P_sum_mul = _get_sums(GT,P,win,mode)
+	sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT,P,win,mode,sums=(GT_sum_sq,P_sum_sq,GT_P_sum_mul))
+
+	assert C1 > 0
+	assert C2 > 0
 
 	ssim_map = ((2*GT_P_sum_mul + C1)*(2*sigmaGT_P + C2))/((GT_sum_sq + P_sum_sq + C1)*(sigmaGT_sq + sigmaP_sq + C2))
+	cs_map = (2*sigmaGT_P + C2)/(sigmaGT_sq + sigmaP_sq + C2)
 
-	v1 = 2 * sigmaGT_P + C2
-	v2 = sigmaGT_sq + sigmaP_sq + C2
-
-	s = int(np.round(ws/2))
-	return np.mean(ssim_map[s:-s,s:-s]), np.mean(v1 / v2)
+	
+	return np.mean(ssim_map), np.mean(cs_map)
 
 
-def ssim (GT,P,ws=11,K1=0.01,K2=0.03,MAX=None):
+def ssim (GT,P,ws=11,K1=0.01,K2=0.03,MAX=None,fltr_specs=None,mode='valid'):
 	"""calculates structural similarity index (ssim).
 
 	:param GT: first (original) input image.
@@ -142,12 +144,16 @@ def ssim (GT,P,ws=11,K1=0.01,K2=0.03,MAX=None):
 
 	GT,P = _initial_check(GT,P)
 
+	if fltr_specs is None:
+		fltr_specs=dict(fltr=Filter.UNIFORM,ws=ws)
+
 	C1 = (K1*MAX)**2
 	C2 = (K2*MAX)**2
+
 	ssims = []
 	css = []
 	for i in range(GT.shape[2]):
-		ssim,cs = _ssim_single(GT[:,:,i],P[:,:,i],ws,C1,C2)
+		ssim,cs = _ssim_single(GT[:,:,i],P[:,:,i],ws,C1,C2,fltr_specs,mode)
 		ssims.append(ssim)
 		css.append(cs)
 	return np.mean(ssims),np.mean(css)
@@ -183,13 +189,14 @@ def ergas(GT,P,r=4,ws=8):
 	s = int(np.round(ws/2))
 	return np.mean(ergas_map[s:-s,s:-s])
 
-def _scc_single(GT,P,fltr,ws):
+def _scc_single(GT,P,win,ws):
 	def _scc_filter(inp, axis, output, mode, cval):
-		return correlate(inp, fltr , output, mode, cval, 0)
+		return correlate(inp, win , output, mode, cval, 0)
 
 	GT_hp = generic_laplace(GT.astype(np.float64), _scc_filter)
 	P_hp = generic_laplace(P.astype(np.float64), _scc_filter)
-	sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT_hp,P_hp,fltr=Filter.UNIFORM,ws=ws)
+	win = fspecial(Filter.UNIFORM,ws)
+	sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT_hp,P_hp,win)
 
 	sigmaGT_sq[sigmaGT_sq<0] = 0
 	sigmaP_sq[sigmaP_sq<0] = 0
@@ -201,7 +208,7 @@ def _scc_single(GT,P,fltr,ws):
 	scc[idx] = 0
 	return scc
 
-def scc(GT,P,fltr=[[-1,-1,-1],[-1,8,-1],[-1,-1,-1]],ws=8):
+def scc(GT,P,win=[[-1,-1,-1],[-1,8,-1],[-1,-1,-1]],ws=8):
 	"""calculates spatial correlation coefficient (scc).
 
 	:param GT: first (original) input image.
@@ -215,7 +222,7 @@ def scc(GT,P,fltr=[[-1,-1,-1],[-1,8,-1],[-1,-1,-1]],ws=8):
 
 	coefs = np.zeros(GT.shape)
 	for i in range(GT.shape[2]):
-		coefs[:,:,i] = _scc_single(GT[:,:,i],P[:,:,i],fltr,ws)
+		coefs[:,:,i] = _scc_single(GT[:,:,i],P[:,:,i],win,ws)
 	return np.mean(coefs)
 
 
@@ -264,6 +271,8 @@ def sam (GT,P):
 
 	return np.mean(sam_angles)
 
+
+
 def msssim (GT,P,weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333],ws=11,K1=0.01,K2=0.03,MAX=None):
 	"""calculates multi-scale structural similarity index (ms-ssim).
 
@@ -284,20 +293,25 @@ def msssim (GT,P,weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333],ws=11,K1=0.0
 
 	scales = len(weights)
 
+	fltr_specs = dict(fltr=Filter.GAUSSIAN,sigma=1.5,ws=11)
+
+	if isinstance(weights, list):
+		weights = np.array(weights)
+
 	mssim = []
 	mcs = []
 	for _ in range(scales):
-		_ssim, _cs = ssim(GT, P, ws=ws,K1=K1,K2=K2,MAX=MAX)
+		_ssim, _cs = ssim(GT, P, ws=ws,K1=K1,K2=K2,MAX=MAX,fltr_specs=fltr_specs)
 		mssim.append(_ssim)
 		mcs.append(_cs)
 
 		filtered = [uniform_filter(im, 2) for im in [GT, P]]
 		GT, P = [x[::2, ::2, :] for x in filtered]
 
-	mssim = np.array(mssim)
-	mcs = np.array(mcs)
+	mssim = np.array(mssim,dtype=np.float64)
+	mcs = np.array(mcs,dtype=np.float64)
 
-	return (np.prod(mcs[0:scales-1] ** weights[0:scales-1]) * (mssim[scales-1] ** weights[scales-1]))
+	return np.prod(_power_complex(mcs[:scales-1],weights[:scales-1])) * _power_complex(mssim[scales-1],weights[scales-1])
 
 
 def _vifp_single(GT,P,sigma_nsq):
@@ -306,19 +320,15 @@ def _vifp_single(GT,P,sigma_nsq):
 	den =0.0
 	for scale in range(1,5):
 		N=2.0**(4-scale+1)+1
-		n = int((N-1)/2)
-		S = N/5
-		T = (((N - 1)/2)-0.5)/S
+		win = fspecial(Filter.GAUSSIAN,ws=N,sigma=N/5)
 
 		if scale >1:
-			GT=gaussian_filter(GT,sigma=S,truncate=T)[n:-n,n:-n][::2, ::2]
-			P=gaussian_filter(P,sigma=S,truncate=T)[n:-n,n:-n][::2, ::2]
+			GT = filter2(GT,win,'valid')[::2, ::2]
+			P = filter2(P,win,'valid')[::2, ::2]
 
-		GT_sum_sq,P_sum_sq,GT_P_sum_mul =_get_sums(GT,P,fltr=Filter.GAUSSIAN,
-													norm=True,valid=n,s=S,t=T,n=N)
-		sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT,P,fltr=Filter.GAUSSIAN,
-													norm=True,valid=n,s=S,t=T,n=N,
-													sums=(GT_sum_sq,P_sum_sq,GT_P_sum_mul))
+		GT_sum_sq,P_sum_sq,GT_P_sum_mul = _get_sums(GT,P,win,mode='valid')
+		sigmaGT_sq,sigmaP_sq,sigmaGT_P = _get_sigmas(GT,P,win,mode='valid',sums=(GT_sum_sq,P_sum_sq,GT_P_sum_mul))
+
 
 		sigmaGT_sq[sigmaGT_sq<0]=0
 		sigmaP_sq[sigmaP_sq<0]=0
@@ -340,6 +350,7 @@ def _vifp_single(GT,P,sigma_nsq):
 	
 		num += np.sum(np.log10(1.0+(g**2.)*sigmaGT_sq/(sv_sq+sigma_nsq)))
 		den += np.sum(np.log10(1.0+sigmaGT_sq/sigma_nsq))
+
 	return num/den
 
 def vifp(GT,P,sigma_nsq=2):
