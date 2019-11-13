@@ -18,5 +18,6 @@ from .full_ref import vifp
 from .no_ref import d_lambda
 from .no_ref import d_s
 from .no_ref import qnr
+from .no_ref import psnrb
 
 from .command_line import cli

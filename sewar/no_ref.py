@@ -151,8 +151,8 @@ def compute_bef(im, block_size=8):
 	return bef
 
 
-def compute_psnrb(GT, P):
-	"""
+def psnrb(GT, P):
+	"""Calculates PSNR with Blocking Effect Factor for a given pair of images (PSNR-B)
 
 	:param GT: first (original) input image in YCbCr format or Grayscale.
 	:param P: second (corrected) input image in YCbCr format or Grayscale..
