@@ -20,6 +20,7 @@ Sewar is a python package for image quality assessment using different metrics. 
 - [x] Spatial Distortion Index (D_S) [[8]](https://www.ingentaconnect.com/content/asprs/pers/2008/00000074/00000002/art00003)
 - [x] Quality with No Reference (QNR) [[8]](https://www.ingentaconnect.com/content/asprs/pers/2008/00000074/00000002/art00003)
 - [x] Visual Information Fidelity (VIF) [[9]](https://ieeexplore.ieee.org/abstract/document/1576816/)
+- [x] Block Sensitive - Peak Signal-to-Noise Ratio (PSNR-B) [[10]](https://ieeexplore.ieee.org/abstract/document/5535179/)
 
 ## Todo
 - [ ] Add command-line support for No-reference metrics
@@ -48,7 +49,7 @@ ssim : 0.8947009811410856
 ```
 Available metrics list
 ```
-mse, rmse, psnr, rmse_sw, uqi, ssim, ergas, scc, rase, sam, msssim, vifp
+mse, rmse, psnr, rmse_sw, uqi, ssim, ergas, scc, rase, sam, msssim, vifp 
 ```
 ## References
 [1] "Image quality assessment: from error visibility to structural similarity." 2004)<br/>
@@ -60,3 +61,4 @@ mse, rmse, psnr, rmse_sw, uqi, ssim, ergas, scc, rase, sam, msssim, vifp
 [7] "Discrimination among semi-arid landscape endmembers using the spectral angle mapper (SAM) algorithm." (1992)<br/>
 [8] "Multispectral and panchromatic data fusion assessment without reference." (2008)<br/>
 [9] "Image information and visual quality." (2006)<br/>
+[10] "Quality Assessment of Deblocked Images" (2011)<br/>
