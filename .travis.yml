@@ -2,11 +2,16 @@ language: python
 python:
   - "3.6"
   - "3.7"
+before_install:
+  - pip install pytest 
+  - pip install codecov
 # command to install dependencies, requirements.txt should NOT include numpy
 install:
-  - pip install pytest 
   - pip install ".[test]" .
+  # Overriding the scipy version to avoid imresize deprecation issue
   - pip install scipy==1.1.0
 # command to run tests
 script:
   - pytest # or py.test for Python versions 3.5 and below
+after_success:
+  - codecov # submit coverage
