@@ -3,8 +3,8 @@ python:
   - "3.6"
   - "3.7"
 before_install:
-  - pip install pytest 
   - pip install codecov
+  - pip install pytest 
 # command to install dependencies, requirements.txt should NOT include numpy
 install:
   - pip install ".[test]" .
