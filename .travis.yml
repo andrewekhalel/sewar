@@ -4,7 +4,7 @@ python:
   - "3.7"
 before_install:
   - pip install codecov
-  - pip install pytest 
+  - pip install pytest pytest-cov 
 # command to install dependencies, requirements.txt should NOT include numpy
 install:
   - pip install ".[test]" .
@@ -12,6 +12,6 @@ install:
   - pip install scipy==1.1.0
 # command to run tests
 script:
-  - pytest # or py.test for Python versions 3.5 and below
+  - pytest --cov=./ --cov-report=xml # or py.test for Python versions 3.5 and below
 after_success:
   - codecov # submit coverage
