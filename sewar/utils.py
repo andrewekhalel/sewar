@@ -3,6 +3,7 @@ from scipy.ndimage.filters import uniform_filter,gaussian_filter
 from scipy import signal
 import warnings
 from enum import Enum
+from PIL import Image
 
 class Filter(Enum):
 	UNIFORM = 0
@@ -72,3 +73,6 @@ def _str_to_array(str):
 
 def _power_complex(a,b):
 	return a.astype('complex') ** b
+
+def imresize(arr,size):
+	return np.array(Image.fromarray(arr).resize(size))

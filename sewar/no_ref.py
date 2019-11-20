@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 from .full_ref import uqi
 from scipy.ndimage.filters import uniform_filter
-from scipy.misc import imresize
+from .utils import imresize
 
 def d_lambda (ms,fused,p=1):
 	"""calculates Spectral Distortion Index (D_lambda).
