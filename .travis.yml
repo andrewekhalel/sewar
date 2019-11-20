@@ -5,7 +5,7 @@ python:
 before_install:
   - pip install codecov
   - pip install pytest pytest-cov 
-# command to install dependencies, requirements.txt should NOT include numpy
+# command to install dependencies
 install:
   - pip install ".[test]" .
   # Overriding the scipy version to avoid imresize deprecation issue
