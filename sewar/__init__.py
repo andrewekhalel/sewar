@@ -15,9 +15,9 @@ from .full_ref import rase
 from .full_ref import sam
 from .full_ref import msssim
 from .full_ref import vifp
+from .full_ref import psnrb
 from .no_ref import d_lambda
 from .no_ref import d_s
 from .no_ref import qnr
-from .no_ref import psnrb
 
 from .command_line import cli
