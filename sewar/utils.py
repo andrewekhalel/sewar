@@ -3,6 +3,7 @@ from scipy.ndimage.filters import uniform_filter,gaussian_filter
 from scipy import signal
 import warnings
 from enum import Enum
+from PIL import Image
 
 class Filter(Enum):
 	UNIFORM = 0
@@ -146,3 +147,7 @@ def _compute_bef(im, block_size=8):
 	bef = t*(d_b - d_bc)
 
 	return bef
+
+
+def imresize(arr,size):
+	return np.array(Image.fromarray(arr).resize(size))
