@@ -49,7 +49,7 @@ ssim : 0.8947009811410856
 ```
 Available metrics list
 ```
-mse, rmse, psnr, rmse_sw, uqi, ssim, ergas, scc, rase, sam, msssim, vifp 
+mse, rmse, psnr, rmse_sw, uqi, ssim, ergas, scc, rase, sam, msssim, vifp, psnrb 
 ```
 ## References
 [1] "Image quality assessment: from error visibility to structural similarity." 2004)<br/>
