@@ -74,6 +74,8 @@ def _str_to_array(str):
 def _power_complex(a,b):
 	return a.astype('complex') ** b
 
+def imresize(arr,size):
+	return np.array(Image.fromarray(arr).resize(size))
 
 def _compute_bef(im, block_size=8):
 	"""Calculates Blocking Effect Factor (BEF) for a given grayscale/one channel image
@@ -147,7 +149,3 @@ def _compute_bef(im, block_size=8):
 	bef = t*(d_b - d_bc)
 
 	return bef
-
-
-def imresize(arr,size):
-	return np.array(Image.fromarray(arr).resize(size))
