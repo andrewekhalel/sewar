@@ -51,6 +51,10 @@ Available metrics list
 ```
 mse, rmse, psnr, rmse_sw, uqi, ssim, ergas, scc, rase, sam, msssim, vifp, psnrb 
 ```
+
+## Contributors
+Special thanks to @sachinpuranik99 and @sunwj.
+
 ## References
 [1] "Image quality assessment: from error visibility to structural similarity." 2004)<br/>
 [2] "A universal image quality index." (2002)<br/>
