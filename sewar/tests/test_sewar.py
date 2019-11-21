@@ -182,3 +182,16 @@ class TestVIF(Tester):
 		print (v)
 		self.assertTrue(abs(0.981413452665522-v)<self.eps)
 
+
+class TestPSNRB(Tester):
+	def test_gray_noise(self):
+		v = sewar.full_ref.psnrb(self.read('gry'),self.read('gry_noise'))
+		print (v)
+		self.assertTrue(abs(15.0646-v)<self.eps)
+
+	def test_color_noise(self):
+		v = sewar.full_ref.psnrb(self.read('clr'),self.read('clr_noise'))
+		print (v)
+		# Value computed for psnrb using MATLAB for the first channel of the image. 
+		# There could be discrepancy in the results compared to MATLAB when using the Y channel of the image, due to scaling issues in Python vs MATLAB 
+		self.assertTrue(abs(14.5881-v)<self.eps)

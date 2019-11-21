@@ -76,3 +76,76 @@ def _power_complex(a,b):
 
 def imresize(arr,size):
 	return np.array(Image.fromarray(arr).resize(size))
+
+def _compute_bef(im, block_size=8):
+	"""Calculates Blocking Effect Factor (BEF) for a given grayscale/one channel image
+
+	C. Yim and A. C. Bovik, "Quality Assessment of Deblocked Images," in IEEE Transactions on Image Processing,
+		vol. 20, no. 1, pp. 88-98, Jan. 2011.
+
+	:param im: input image (numpy ndarray)
+	:param block_size: Size of the block over which DCT was performed during compression
+	:return: float -- bef.
+	"""
+	if len(im.shape) == 3:
+		height, width, channels = im.shape
+	elif len(im.shape) == 2:
+		height, width = im.shape
+		channels = 1
+	else:
+		raise ValueError("Not a 1-channel/3-channel grayscale image")
+
+	if channels > 1:
+		raise ValueError("Not for color images")
+
+	h = np.array(range(0, width - 1))
+	h_b = np.array(range(block_size - 1, width - 1, block_size))
+	h_bc = np.array(list(set(h).symmetric_difference(h_b)))
+
+	v = np.array(range(0, height - 1))
+	v_b = np.array(range(block_size - 1, height - 1, block_size))
+	v_bc = np.array(list(set(v).symmetric_difference(v_b)))
+
+	d_b = 0
+	d_bc = 0
+
+	# h_b for loop
+	for i in list(h_b):
+		diff = im[:, i] - im[:, i+1]
+		d_b += np.sum(np.square(diff))
+
+	# h_bc for loop
+	for i in list(h_bc):
+		diff = im[:, i] - im[:, i+1]
+		d_bc += np.sum(np.square(diff))
+
+	# v_b for loop
+	for j in list(v_b):
+		diff = im[j, :] - im[j+1, :]
+		d_b += np.sum(np.square(diff))
+
+	# V_bc for loop
+	for j in list(v_bc):
+		diff = im[j, :] - im[j+1, :]
+		d_bc += np.sum(np.square(diff))
+
+	# N code
+	n_hb = height * (width/block_size) - 1
+	n_hbc = (height * (width - 1)) - n_hb
+	n_vb = width * (height/block_size) - 1
+	n_vbc = (width * (height - 1)) - n_vb
+
+	# D code
+	d_b /= (n_hb + n_vb)
+	d_bc /= (n_hbc + n_vbc)
+
+	# Log
+	if d_b > d_bc:
+		t = log2(block_size)/log2(min(height, width))
+	else:
+		t = 0
+
+	# BEF
+	bef = t*(d_b - d_bc)
+
+	return bef

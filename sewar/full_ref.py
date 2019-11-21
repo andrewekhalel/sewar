@@ -1,8 +1,9 @@
 from __future__ import absolute_import, division, print_function
 import numpy as np
-from .utils import _initial_check,_get_sigmas,_get_sums,Filter,_replace_value,fspecial,filter2,_power_complex
-from scipy.ndimage import generic_laplace,uniform_filter,correlate,gaussian_filter
 from scipy import signal
+from math import log2, log10
+from scipy.ndimage import generic_laplace,uniform_filter,correlate,gaussian_filter
+from .utils import _initial_check,_get_sigmas,_get_sums,Filter,_replace_value,fspecial,filter2,_power_complex,_compute_bef
 
 def mse (GT,P):
 	"""calculates mean squared error (mse).
@@ -365,3 +366,30 @@ def vifp(GT,P,sigma_nsq=2):
 	GT,P = _initial_check(GT,P)
 	# GT,P = GT[:,:,np.newaxis],P[:,:,np.newaxis]
 	return np.mean([_vifp_single(GT[:,:,i],P[:,:,i],sigma_nsq) for i in range(GT.shape[2])])
+
+
+def psnrb(GT, P):
+	"""Calculates PSNR with Blocking Effect Factor for a given pair of images (PSNR-B)
+
+	:param GT: first (original) input image in YCbCr format or Grayscale.
+	:param P: second (corrected) input image in YCbCr format or Grayscale..
+	:return: float -- psnr_b.
+	"""
+	if len(GT.shape) == 3:
+		GT = GT[:, :, 0]
+
+	if len(P.shape) == 3:
+		P = P[:, :, 0]
+
+	imdff = np.double(GT) - np.double(P)
+
+	mse = np.mean(np.square(imdff.flatten()))
+	bef = _compute_bef(P)
+	mse_b = mse + bef
+
+	if np.amax(P) > 2:
+		psnr_b = 10 * log10(255**2/mse_b)
+	else:
+		psnr_b = 10 * log10(1/mse_b)
+
+	return psnr_b

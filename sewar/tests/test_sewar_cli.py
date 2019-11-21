@@ -79,3 +79,13 @@ class TestMsSsimCli(Tester):
 					K2=0.15)
 		msssim = sewar.cli(args)
 		self.assertTrue(msssim == 1)
+
+
+class TestPSNRBCli(Tester):
+	def test_gray(self):
+		args = dict(GT=self.path('gry'),
+					P=self.path('gry_noise'),
+					metric='psnrb',
+					)
+		psnrb = sewar.cli(args)
+		self.assertTrue(abs(psnrb - 15.0646) < self.eps)

@@ -35,7 +35,7 @@ def d_s (pan,ms,fused,q=1,r=4,ws=7):
 	:param q: parameter to emphasize large spatial differences (default = 1).
 	:param r: ratio of high resolution to low resolution (default=4).
 	:param ws: sliding window size (default = 7).
-	
+
 	:returns:  float -- D_S.
 	"""
 	pan = pan.astype(np.float64)
@@ -68,9 +68,11 @@ def qnr (pan,ms,fused,alpha=1,beta=1,p=1,q=1,r=4,ws=7):
 	:param q: parameter to emphasize large spatial differences (default = 1).
 	:param r: ratio of high resolution to low resolution (default=4).
 	:param ws: sliding window size (default = 7).
-	
+
 	:returns:  float -- QNR.
 	"""
 	a = (1-d_lambda(ms,fused,p=p))**alpha
 	b = (1-d_s(pan,ms,fused,q=q,ws=ws,r=r))**beta
 	return a*b
+
+
