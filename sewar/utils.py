@@ -141,7 +141,7 @@ def _compute_bef(im, block_size=8):
 
 	# Log
 	if d_b > d_bc:
-		t = log2(block_size)/log2(min(height, width))
+		t = np.log2(block_size)/np.log2(min(height, width))
 	else:
 		t = 0
 
