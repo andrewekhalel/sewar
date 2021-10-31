@@ -1,0 +1,17 @@
+language: python
+python:
+  - "3.6"
+  - "3.7"
+before_install:
+  - pip install codecov
+  - pip install pytest pytest-cov 
+# command to install dependencies
+install:
+  - pip install ".[test]" .
+  # Overriding the scipy version to avoid imresize deprecation issue
+  - pip install scipy==1.1.0
+# command to run tests
+script:
+  - pytest --cov=./ --cov-report=xml # or py.test for Python versions 3.5 and below
+after_success:
+  - codecov # submit coverage

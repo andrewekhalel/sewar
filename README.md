@@ -2,6 +2,9 @@
 
 # Sewar
 
+[![Build Status](https://travis-ci.org/sachinpuranik99/sewar.svg?branch=master)](https://travis-ci.org/sachinpuranik99/sewar)
+[![codecov](https://codecov.io/gh/sachinpuranik99/sewar/branch/master/graph/badge.svg)](https://codecov.io/gh/sachinpuranik99/sewar)
+
 Sewar is a python package for image quality assessment using different metrics. You can check documentation [here](http://sewar.readthedocs.io/).
 
 
