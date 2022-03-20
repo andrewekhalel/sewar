@@ -15,11 +15,11 @@ def d_lambda (ms,fused,p=1):
 	"""
 	L = ms.shape[2]
 
-	M1 = np.zeros((L,L))
-	M2 = np.zeros((L,L))
+	M1 = np.ones((L,L))
+	M2 = np.ones((L,L))
 
 	for l in range(L):
-		for r in range(l,L):
+		for r in range(l+1,L):
 			M1[l,r] = M1[r,l] = uqi(fused[:,:,l],fused[:,:,r])
 			M2[l,r] = M2[r,l] = uqi(ms[:,:,l],ms[:,:,r])
 
