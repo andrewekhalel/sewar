@@ -10,7 +10,7 @@ Sewar is a python package for image quality assessment using different metrics. 
 
 ## Implemented metrics
 - [x] Mean Squared Error (MSE) 
-- [x] Root Mean Sqaured Error (RMSE)
+- [x] Root Mean Squared Error (RMSE)
 - [x] Peak Signal-to-Noise Ratio (PSNR) [[1]](https://ieeexplore.ieee.org/abstract/document/1284395/)
 - [x] Structural Similarity Index (SSIM) [[1]](https://ieeexplore.ieee.org/abstract/document/1284395/)
 - [x] Universal Quality Image Index (UQI) [[2]](https://ieeexplore.ieee.org/document/995823/)
