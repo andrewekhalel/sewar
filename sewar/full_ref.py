@@ -62,7 +62,7 @@ def psnr (GT,P,MAX=None):
 	:returns:  float -- psnr value in dB.
 	"""
 	if MAX is None:
-		MAX = np.iinfo(GT.dtype).max
+		MAX = np.finfo(GT.dtype).max
 
 	GT,P = _initial_check(GT,P)
 
