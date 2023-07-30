@@ -160,35 +160,29 @@ def ssim (GT,P,ws=11,K1=0.01,K2=0.03,MAX=None,fltr_specs=None,mode='valid'):
 	return np.mean(ssims),np.mean(css)
 
 
-def ergas(GT,P,r=4,ws=8):
+def ergas(GT,P,r=0.25):
 	"""calculates erreur relative globale adimensionnelle de synthese (ergas).
 
 	:param GT: first (original) input image.
 	:param P: second (deformed) input image.
-	:param r: ratio of high resolution to low resolution (default=4).
-	:param ws: sliding window size (default = 8).
+	:param r: ratio of high resolution to low resolution (default=1/4).
 
 	:returns:  float -- ergas value.
 	"""
 	GT,P = _initial_check(GT,P)
 
-	rmse_map = None
-	nb = 1
+	nb = GT.shape[2]
 
-	_,rmse_map = rmse_sw(GT,P,ws)
+	GT_means_per_band = np.mean(GT, axis=(0,1))
 
-	means_map = uniform_filter(GT,ws)/ws**2
-
-	# Avoid division by zero
-	idx = means_map == 0
-	means_map[idx] = 1
-	rmse_map[idx] = 0
-
-	ergasroot = np.sqrt(np.sum(((rmse_map**2)/(means_map**2)),axis=2)/nb)
-	ergas_map = 100*r*ergasroot;
-
-	s = int(np.round(ws/2))
-	return np.mean(ergas_map[s:-s,s:-s])
+	rmse_per_band = np.zeros(nb)
+	for b in range(nb):
+		rmse_per_band[b] = rmse(GT[:,:,b],P[:,:,b])
+	
+	presratio = 100*r
+	div = (rmse_per_band**2) / (GT_means_per_band**2)
+	ergasroot = np.sqrt( np.sum(div)/ nb )
+	return presratio*ergasroot
 
 def _scc_single(GT,P,win,ws):
 	def _scc_filter(inp, axis, output, mode, cval):

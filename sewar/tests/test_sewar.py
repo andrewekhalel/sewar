@@ -112,6 +112,10 @@ class TestErgas(Tester):
 		ergas = sewar.ergas(self.read('clr'),self.read('clr'))
 		self.assertTrue(ergas == 0)
 
+	def test_color_noise(self):
+		ergas = sewar.ergas(self.read('clr'),self.read('clr_noise'))
+		self.assertTrue(abs(ergas - 10.6068) < self.eps)
+
 	def test_gray(self):
 		ergas = sewar.ergas(self.read('gry'),self.read('gry'))
 		self.assertTrue(ergas == 0)
