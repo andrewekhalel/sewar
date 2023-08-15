@@ -3,6 +3,9 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: "3.9"
     name: Codecov Workflow
     steps:
     - uses: actions/checkout@v1
