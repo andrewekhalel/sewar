@@ -7,7 +7,7 @@ def readme():
 
 
 setup(name='sewar',
-	version='0.4.5',
+	version='0.4.6',
 	description='All image quality metrics you need in one package.',
 	long_description=readme(),
 	long_description_content_type="text/markdown",
