@@ -7,9 +7,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install requirements
-      run: pip install -r requirements.txt
+      run: pip install -r requirements.txt nose coverage
     - name: Run tests and collect coverage
-      run: pytest --cov .
+      run: nosetests --with-coverage --cover-inclusive --cover-package=sewar
     - name: Upload coverage reports to Codecov
       run: |
         curl -Os https://uploader.codecov.io/latest/linux/codecov
