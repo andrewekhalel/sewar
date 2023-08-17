@@ -1,20 +1,21 @@
+name: Codecov Workflow
 on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: 3.9
-    name: Codecov Workflow
     steps:
+    - name: Checkout
     - uses: actions/checkout@v1
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
     - name: Install requirements
       run: pip install -r requirements.txt nose coverage
     - name: Run tests and collect coverage
       run: nosetests --with-coverage --cover-inclusive --cover-package=sewar
     - name: Upload coverage reports to Codecov
-      run: |
-        curl -Os https://uploader.codecov.io/latest/linux/codecov
-        chmod +x codecov
-        ./codecov -t ${CODECOV_TOKEN}
+      uses: codecov/codecov-action@v3
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
