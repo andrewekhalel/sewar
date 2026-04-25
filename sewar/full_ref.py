@@ -324,7 +324,7 @@ def msssim (GT,P,weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333],ws=11,K1=0.0
 	mssim = np.array(mssim,dtype=np.float64)
 	mcs = np.array(mcs,dtype=np.float64)
 
-	return np.prod(_power_complex(mcs[:scales-1],weights[:scales-1])) * _power_complex(mssim[scales-1],weights[scales-1])
+	return (np.prod(_power_complex(mcs[:scales-1],weights[:scales-1])) * _power_complex(mssim[scales-1],weights[scales-1])).real
 
 
 def _vifp_single(GT,P,sigma_nsq):

@@ -192,7 +192,7 @@ class TestMsssim(Tester):
 			result = sewar.msssim(a, b)
 			self.assertEqual(len(w), 1)
 			self.assertIn('Reducing to', str(w[0].message))
-		self.assertTrue(np.isfinite(result.real))
+		self.assertTrue(np.isfinite(result))
 
 class TestNoRef(Tester):
 	def test_color(self):
