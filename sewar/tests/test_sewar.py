@@ -138,6 +138,25 @@ class TestRase(Tester):
 		rase = sewar.rase(self.read('gry'),self.read('gry'))
 		self.assertTrue(rase == 0)
 
+	def test_zero_gt_no_division_by_zero(self):
+		# When GT has zero mean, the old code divided by zero producing NaN/inf.
+		# The fix should return 0.0 for those windows instead.
+		gt = np.zeros((64, 64, 3), dtype=np.uint8)
+		p = np.full((64, 64, 3), 128, dtype=np.uint8)
+		result = sewar.rase(gt, p)
+		self.assertFalse(np.isnan(result), "rase returned NaN for zero-mean GT")
+		self.assertFalse(np.isinf(result), "rase returned inf for zero-mean GT")
+		self.assertEqual(result, 0.0)
+
+	def test_partial_zero_gt_is_finite(self):
+		# GT where only part of the image has zero mean — result must be finite.
+		gt = np.zeros((64, 64, 3), dtype=np.uint8)
+		gt[32:, 32:, :] = 100
+		p = np.full((64, 64, 3), 128, dtype=np.uint8)
+		result = sewar.rase(gt, p)
+		self.assertFalse(np.isnan(result), "rase returned NaN for partial zero-mean GT")
+		self.assertFalse(np.isinf(result), "rase returned inf for partial zero-mean GT")
+
 class TestSam(Tester):
 	def test_color(self):
 		sam = sewar.sam(self.read('clr'),self.read('clr'))
