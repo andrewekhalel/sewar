@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.ndimage.filters import uniform_filter,gaussian_filter
+from scipy.ndimage import uniform_filter,gaussian_filter
 from scipy import signal
 import warnings
 from enum import Enum
