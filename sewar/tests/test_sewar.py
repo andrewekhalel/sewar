@@ -180,6 +180,20 @@ class TestMsssim(Tester):
 		print (msssim)
 		self.assertTrue(abs(0.631429952770791-msssim)<self.eps)
 
+	def test_wide_image(self):
+		# Regression for issue #37: wide images crashed because downsampling
+		# reduced the short side below the filter window size.
+		rng = np.random.default_rng(0)
+		a = rng.integers(0, 256, (90, 1920, 3), dtype=np.uint8)
+		b = rng.integers(0, 256, (90, 1920, 3), dtype=np.uint8)
+		import warnings
+		with warnings.catch_warnings(record=True) as w:
+			warnings.simplefilter('always')
+			result = sewar.msssim(a, b)
+			self.assertEqual(len(w), 1)
+			self.assertIn('Reducing to', str(w[0].message))
+		self.assertTrue(np.isfinite(result.real))
+
 class TestNoRef(Tester):
 	def test_color(self):
 		d = sewar.no_ref.d_lambda(self.read('clr'),self.read('clr'))

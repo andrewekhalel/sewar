@@ -297,6 +297,20 @@ def msssim (GT,P,weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333],ws=11,K1=0.0
 	if isinstance(weights, list):
 		weights = np.array(weights)
 
+	# Cap scales so the image is never smaller than the filter window after downsampling.
+	# After k halvings the short side is min_dim/2^k; we need that >= ws.
+	min_dim = min(GT.shape[0], GT.shape[1])
+	max_scales = int(np.floor(np.log2(min_dim / ws))) + 1
+	if scales > max_scales:
+		import warnings
+		warnings.warn(
+			"Image is too small for {} scales with window size {}. "
+			"Reducing to {} scales.".format(scales, ws, max_scales),
+			UserWarning
+		)
+		scales = max_scales
+		weights = weights[:scales]
+
 	mssim = []
 	mcs = []
 	for _ in range(scales):
