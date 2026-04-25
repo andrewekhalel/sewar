@@ -10,6 +10,10 @@ class Filter(Enum):
 	GAUSSIAN = 1
 
 def _initial_check(GT,P):
+	if not isinstance(GT, np.ndarray) or not isinstance(P, np.ndarray):
+		raise TypeError("GT and P must be numpy arrays (numpy.ndarray). "
+						"Got types: GT=%s, P=%s. "
+						"Images should be in H x W x C format." % (type(GT).__name__, type(P).__name__))
 	assert GT.shape == P.shape, "Supplied images have different sizes " + \
 	str(GT.shape) + " and " + str(P.shape)
 	if GT.dtype != P.dtype:
