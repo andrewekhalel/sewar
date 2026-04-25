@@ -36,6 +36,12 @@ Just as simple as
 ```
 pip install sewar
 ```
+
+## Running tests
+```
+pip install pytest pytest-cov
+pytest --cov=sewar
+```
 ## Example usage
 A simple example to use UQI. All metric functions expect **numpy arrays** in `H x W x C` format (height x width x channels):
 ```python

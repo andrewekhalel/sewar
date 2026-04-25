@@ -34,8 +34,7 @@ setup(name='sewar',
 	author_email='andrewekhalel@gmail.com',
 	license='MIT',
 	packages=['sewar'],
-	test_suite='nose.collector',
-	tests_require=['nose','Pillow'],
+	tests_require=['pytest','pytest-cov','Pillow'],
 	install_requires=[
 	'numpy', 'scipy' , 'Pillow'
 	],

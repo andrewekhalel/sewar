@@ -11,9 +11,9 @@ jobs:
       with:
         python-version: '3.9'
     - name: Install requirements
-      run: pip install -r requirements.txt nose coverage
+      run: pip install -r requirements.txt pytest pytest-cov
     - name: Run tests and collect coverage
-      run: nosetests --with-coverage --cover-inclusive --cover-package=sewar
+      run: pytest --cov=sewar
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
       env:
