@@ -239,7 +239,11 @@ def rase(GT,P,ws=8):
 
 	N = GT.shape[2]
 	M = np.sum(GT_means,axis=2)/N
-	rase_map = (100./M) * np.sqrt( np.sum(rmse_map**2,axis=2) / N )
+
+	with np.errstate(divide='ignore', invalid='ignore'):
+		rase_map = np.where(M != 0,
+		                    (100./M) * np.sqrt(np.sum(rmse_map**2, axis=2) / N),
+		                    0.0)
 
 	s = int(np.round(ws/2))
 	return np.mean(rase_map[s:-s,s:-s])
