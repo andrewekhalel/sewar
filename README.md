@@ -37,11 +37,15 @@ Just as simple as
 pip install sewar
 ```
 ## Example usage
-a simple example to use UQI
+A simple example to use UQI. All metric functions expect **numpy arrays** in `H x W x C` format (height x width x channels):
 ```python
+>>> import numpy as np
+>>> from PIL import Image
 >>> from sewar.full_ref import uqi
->>> uqi(img1,img2)
-0.9586952304831419
+>>> img1 = np.asarray(Image.open("image1.tif"))
+>>> img2 = np.asarray(Image.open("image2.tif"))
+>>> uqi(img1, img2)
+0.8847521481522062
 ```
 
 ## Example usage for command line interface
