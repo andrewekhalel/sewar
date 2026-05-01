@@ -19,6 +19,7 @@ metrics = dict(mse=sewar.full_ref.mse,
                 msssim=sewar.full_ref.msssim,
                 vifp=sewar.full_ref.vifp,
                 psnrb=sewar.full_ref.psnrb,
+                q2n=sewar.full_ref.q2n,
                 )
                 #d_lambda=sewar.no_ref.d_lambda,
                 #d_s=sewar.no_ref.d_s,

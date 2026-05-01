@@ -380,6 +380,139 @@ def vifp(GT,P,sigma_nsq=2):
 	return np.mean([_vifp_single(GT[:,:,i],P[:,:,i],sigma_nsq) for i in range(GT.shape[2])])
 
 
+def _norm_blocco(x):
+	a = x.mean()
+	c = x.std(ddof=1)
+	if c == 0:
+		c = np.finfo(float).eps
+	return (x - a) / c + 1.0, a, c
+
+def _onion_mult(o1, o2):
+	N = len(o1)
+	if N == 1:
+		return o1 * o2
+	L = N // 2
+	a = o1[:L];  b = np.concatenate([[o1[L]], -o1[L+1:]])
+	c = o2[:L];  d = np.concatenate([[o2[L]], -o2[L+1:]])
+	if N == 2:
+		return np.array([a[0]*c[0] - d[0]*b[0], a[0]*d[0] + c[0]*b[0]])
+	ris1 = _onion_mult(a, c)
+	ris2 = _onion_mult(d, np.concatenate([[b[0]], -b[1:]]))
+	ris3 = _onion_mult(np.concatenate([[a[0]], -a[1:]]), d)
+	ris4 = _onion_mult(c, b)
+	return np.concatenate([ris1 - ris2, ris3 + ris4])
+
+def _onion_mult2D(o1, o2):
+	N3 = o1.shape[2]
+	if N3 == 1:
+		return o1 * o2
+	L = N3 // 2
+	a = o1[:,:,:L];  b = np.concatenate([o1[:,:,L:L+1], -o1[:,:,L+1:]], axis=2)
+	c = o2[:,:,:L];  d = np.concatenate([o2[:,:,L:L+1], -o2[:,:,L+1:]], axis=2)
+	if N3 == 2:
+		return np.concatenate([a*c - d*b, a*d + c*b], axis=2)
+	ris1 = _onion_mult2D(a, c)
+	ris2 = _onion_mult2D(d, np.concatenate([b[:,:,:1], -b[:,:,1:]], axis=2))
+	ris3 = _onion_mult2D(np.concatenate([a[:,:,:1], -a[:,:,1:]], axis=2), d)
+	ris4 = _onion_mult2D(c, b)
+	return np.concatenate([ris1 - ris2, ris3 + ris4], axis=2)
+
+def _onions_quality(dat1, dat2, ws):
+	dat1 = dat1.astype(np.float64)
+	dat2 = np.concatenate([dat2[:,:,:1], -dat2[:,:,1:]], axis=2).astype(np.float64)
+	N3 = dat1.shape[2]
+	M  = ws * ws
+	m1 = np.zeros(N3);  m2 = np.zeros(N3)
+	mod_q1m = 0.0;      mod_q2m = 0.0
+	mod_q1  = np.zeros((ws, ws));  mod_q2 = np.zeros((ws, ws))
+	for i in range(N3):
+		a1, s, t = _norm_blocco(dat1[:,:,i])
+		dat1[:,:,i] = a1
+		if s == 0:
+			dat2[:,:,i] = dat2[:,:,i] - s + 1 if i == 0 else -(-dat2[:,:,i] - s + 1)
+		else:
+			dat2[:,:,i] = (dat2[:,:,i] - s) / t + 1 if i == 0 else -((-dat2[:,:,i] - s) / t + 1)
+		m1[i] = dat1[:,:,i].mean();  m2[i] = dat2[:,:,i].mean()
+		mod_q1m += m1[i]**2;         mod_q2m += m2[i]**2
+		mod_q1  += dat1[:,:,i]**2;   mod_q2  += dat2[:,:,i]**2
+	mod_q1m = np.sqrt(mod_q1m);  mod_q2m = np.sqrt(mod_q2m)
+	mod_q1  = np.sqrt(mod_q1);   mod_q2  = np.sqrt(mod_q2)
+	termine2 = mod_q1m * mod_q2m
+	termine4 = mod_q1m**2 + mod_q2m**2
+	termine3 = (M/(M-1)) * (np.mean(mod_q1**2) + np.mean(mod_q2**2)) - (M/(M-1)) * termine4
+	mean_bias = 2.0 * termine2 / termine4 if termine4 > 0 else 0.0
+	if termine3 == 0:
+		q = np.zeros(N3);  q[N3-1] = mean_bias
+	else:
+		cbm = 2.0 / termine3
+		qu  = _onion_mult2D(dat1, dat2)
+		qm  = _onion_mult(m1, m2)
+		qv  = np.array([(M/(M-1)) * np.mean(qu[:,:,i]) for i in range(N3)])
+		q   = (qv - (M/(M-1)) * qm) * mean_bias * cbm
+	return q
+
+def q2n(GT, P, ws=32, stride=None):
+	"""calculates Q2n hypercomplex image quality index (generalises UQI to N-band images).
+
+	For N bands the bands are interpreted as components of a Cayley-Dickson number
+	(complex for N=2, quaternion for N=4, octonion for N=8).  If N is not a power
+	of two the image is zero-padded in the band dimension.
+
+	Reference: Garzelli & Nencini, IEEE GRSL 2009; Vivone et al., IEEE TGRS 2015.
+
+	:param GT: first (reference) input image.
+	:param P: second (test) input image.
+	:param ws: block size (default = 32).
+	:param stride: block shift (default = ws, non-overlapping).
+
+	:returns:  float -- Q2n value in [0, 1], where 1 indicates perfect quality.
+	"""
+	GT, P = _initial_check(GT, P)
+	H, W, N3 = GT.shape
+	if stride is None:
+		stride = ws
+
+	stepx = int(np.ceil(H / stride))
+	stepy = int(np.ceil(W / stride))
+	if stepy <= 0:
+		stepy = stepx = 1
+
+	est1 = (stepx - 1) * stride + ws - H
+	est2 = (stepy  - 1) * stride + ws - W
+
+	if est1 != 0 or est2 != 0:
+		GT_p = np.zeros((H + est1, W + est2, N3))
+		P_p  = np.zeros((H + est1, W + est2, N3))
+		GT_p[:H, :W, :] = GT;  P_p[:H, :W, :] = P
+		if est2 > 0:
+			GT_p[:H, W:, :] = GT[:, W-est2:W, :][:, ::-1, :]
+			P_p[:H,  W:, :] = P[:,  W-est2:W, :][:, ::-1, :]
+		if est1 > 0:
+			GT_p[H:, :, :] = GT_p[H-est1:H, :, :][::-1, :, :]
+			P_p[H:,  :, :] = P_p[ H-est1:H, :, :][::-1, :, :]
+		GT, P = GT_p, P_p
+		H, W = GT.shape[:2]
+
+	n_pow2 = 1
+	while n_pow2 < N3:
+		n_pow2 *= 2
+	if n_pow2 > N3:
+		pad = np.zeros((H, W, n_pow2 - N3))
+		GT = np.concatenate([GT, pad], axis=2)
+		P  = np.concatenate([P,  pad], axis=2)
+	N3 = n_pow2
+
+	valori = np.zeros((stepx, stepy, N3))
+	for j in range(stepx):
+		for i in range(stepy):
+			valori[j, i, :] = _onions_quality(
+				GT[j*stride:j*stride+ws, i*stride:i*stride+ws, :],
+				P[ j*stride:j*stride+ws, i*stride:i*stride+ws, :],
+				ws)
+
+	return float(np.mean(np.sqrt(np.sum(valori**2, axis=2))))
+
+
 def psnrb(GT, P):
 	"""Calculates PSNR with Blocking Effect Factor for a given pair of images (PSNR-B)
 

@@ -220,6 +220,31 @@ class TestVIF(Tester):
 		self.assertTrue(abs(0.981413452665522-v)<self.eps)
 
 
+class TestQ2n(Tester):
+	def test_color(self):
+		v = sewar.q2n(self.read('clr'), self.read('clr'))
+		self.assertAlmostEqual(v, 1.0, places=5)
+
+	def test_color_noise(self):
+		v = sewar.q2n(self.read('clr'), self.read('clr_noise'))
+		print(v)
+		self.assertTrue(abs(v - 0.255397) < self.eps)
+
+	def test_gray(self):
+		v = sewar.q2n(self.read('gry'), self.read('gry'))
+		self.assertAlmostEqual(v, 1.0, places=5)
+
+	def test_gray_noise(self):
+		v = sewar.q2n(self.read('gry'), self.read('gry_noise'))
+		print(v)
+		self.assertTrue(abs(v - 0.349623) < self.eps)
+
+	def test_gray_const(self):
+		v = sewar.q2n(self.read('gry'), self.read('gry_const'))
+		print(v)
+		self.assertTrue(abs(v - 0.562425) < self.eps)
+
+
 class TestPSNRB(Tester):
 	def test_gray_noise(self):
 		v = sewar.full_ref.psnrb(self.read('gry'),self.read('gry_noise'))
