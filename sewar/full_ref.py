@@ -154,8 +154,8 @@ def ssim (GT,P,ws=11,K1=0.01,K2=0.03,MAX=None,fltr_specs=None,mode='valid'):
 	ssims = []
 	css = []
 	for i in range(GT.shape[2]):
-		ssim,cs = _ssim_single(GT[:,:,i],P[:,:,i],ws,C1,C2,fltr_specs,mode)
-		ssims.append(ssim)
+		ssim_val, cs = _ssim_single(GT[:,:,i],P[:,:,i],ws,C1,C2,fltr_specs,mode)
+		ssims.append(ssim_val)
 		css.append(cs)
 	return np.mean(ssims),np.mean(css)
 
