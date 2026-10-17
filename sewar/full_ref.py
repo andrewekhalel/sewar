@@ -255,20 +255,24 @@ def sam (GT,P):
 	:param GT: first (original) input image.
 	:param P: second (deformed) input image.
 
-	:returns:  float -- sam value.
+	:returns:  float -- mean spectral angle in radians. Pixels with a zero-norm
+	          spectrum in either image are excluded; returns NaN if none remain.
 	"""
 	GT,P = _initial_check(GT,P)
 
-	GT = GT.reshape((GT.shape[0]*GT.shape[1],GT.shape[2]))
-	P = P.reshape((P.shape[0]*P.shape[1],P.shape[2]))
+	n_pixels = GT.shape[0]*GT.shape[1]
+	n_bands = GT.shape[2]
+	GT = GT.reshape((n_pixels,n_bands))
+	P = P.reshape((n_pixels,n_bands))
 
-	N = GT.shape[1]
-	sam_angles = np.zeros(N)
-	for i in range(GT.shape[1]):
-		val = np.clip(np.dot(GT[:,i],P[:,i]) / (np.linalg.norm(GT[:,i])*np.linalg.norm(P[:,i])),-1,1)		
-		sam_angles[i] = np.arccos(val)
+	dot_products = np.sum(GT*P,axis=1)
+	norm_products = np.linalg.norm(GT,axis=1)*np.linalg.norm(P,axis=1)
+	valid = norm_products > 0
+	if not np.any(valid):
+		return np.nan
 
-	return np.mean(sam_angles)
+	cosines = np.clip(dot_products[valid]/norm_products[valid],-1,1)
+	return np.mean(np.arccos(cosines))
 
 
 

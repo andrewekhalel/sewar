@@ -166,6 +166,21 @@ class TestSam(Tester):
 		sam = sewar.sam(self.read('gry'),self.read('gry'))
 		self.assertTrue(sam < self.eps)
 
+	def test_pixelwise_spectral_angles(self):
+		gt = np.array([[[1., 0.], [0., 1.], [1., 1.]]])
+		p = np.array([[[1., 0.], [1., 0.], [0., 1.]]])
+		self.assertAlmostEqual(sewar.sam(gt, p), np.pi / 4)
+
+	def test_zero_norm_spectra_are_excluded(self):
+		gt = np.array([[[1., 0.], [0., 0.]]])
+		p = np.array([[[0., 1.], [1., 0.]]])
+		self.assertAlmostEqual(sewar.sam(gt, p), np.pi / 2)
+
+	def test_all_zero_norm_spectra_return_nan(self):
+		gt = np.zeros((1, 2, 3))
+		p = np.zeros((1, 2, 3))
+		self.assertTrue(np.isnan(sewar.sam(gt, p)))
+
 class TestMsssim(Tester):
 	def test_color(self):
 		msssim = sewar.msssim(self.read('clr'),self.read('clr'))
