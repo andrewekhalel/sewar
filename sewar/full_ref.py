@@ -1,7 +1,6 @@
 from __future__ import absolute_import, division, print_function
 import numpy as np
 from scipy import signal
-from math import log2, log10
 from scipy.ndimage import generic_laplace,uniform_filter,correlate,gaussian_filter
 from .utils import _initial_check,_get_sigmas,_get_sums,Filter,_replace_value,fspecial,filter2,_power_complex,_compute_bef
 
@@ -517,28 +516,46 @@ def q2n(GT, P, ws=32, stride=None):
 	return float(np.mean(np.sqrt(np.sum(valori**2, axis=2))))
 
 
-def psnrb(GT, P):
+def psnrb(GT, P, MAX=None):
 	"""Calculates PSNR with Blocking Effect Factor for a given pair of images (PSNR-B)
 
 	:param GT: first (original) input image in YCbCr format or Grayscale.
 	:param P: second (corrected) input image in YCbCr format or Grayscale..
+	:param MAX: maximum sample value. Defaults to the integer dtype maximum or 1
+	            for floating-point images in the range [0, 1].
 	:return: float -- psnr_b.
 	"""
+	if not isinstance(GT, np.ndarray) or not isinstance(P, np.ndarray):
+		raise TypeError("GT and P must be numpy arrays (numpy.ndarray).")
+	if GT.ndim not in (2, 3) or P.ndim not in (2, 3):
+		raise ValueError("PSNR-B expects grayscale or color image arrays.")
+
+	if MAX is None:
+		if np.issubdtype(GT.dtype, np.integer):
+			MAX = np.iinfo(GT.dtype).max
+		elif np.issubdtype(GT.dtype, np.floating) or np.issubdtype(GT.dtype, np.bool_):
+			MAX = 1.0
+		else:
+			raise TypeError("MAX must be specified for this image dtype.")
+
+	if not np.isscalar(MAX) or not np.isfinite(MAX) or MAX <= 0:
+		raise ValueError("MAX must be a positive finite scalar.")
+	MAX = float(MAX)
+
 	if len(GT.shape) == 3:
 		GT = GT[:, :, 0]
 
 	if len(P.shape) == 3:
 		P = P[:, :, 0]
 
-	imdff = np.double(GT) - np.double(P)
+	GT, P = _initial_check(GT, P)
+	GT = GT[:, :, 0]
+	P = P[:, :, 0]
 
-	mse = np.mean(np.square(imdff.flatten()))
+	mse = np.mean((GT - P)**2)
 	bef = _compute_bef(P)
 	mse_b = mse + bef
 
-	if np.amax(P) > 2:
-		psnr_b = 10 * log10(255**2/mse_b)
-	else:
-		psnr_b = 10 * log10(1/mse_b)
-
-	return psnr_b
+	if mse_b == 0.0:
+		return np.inf
+	return 10.0 * np.log10(MAX**2/mse_b)

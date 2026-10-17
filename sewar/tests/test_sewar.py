@@ -288,3 +288,29 @@ class TestPSNRB(Tester):
 		# Value computed for psnrb using MATLAB for the first channel of the image. 
 		# There could be discrepancy in the results compared to MATLAB when using the Y channel of the image, due to scaling issues in Python vs MATLAB 
 		self.assertTrue(abs(14.5881-v)<self.eps)
+
+	def test_bef_is_independent_of_integer_dtype(self):
+		rows, cols = np.indices((32, 32))
+		p = (((rows // 8 + cols // 8) % 2) * 255).astype(np.uint8)
+		gt = np.zeros_like(p)
+
+		integer_bef = sewar.utils._compute_bef(p)
+		float_bef = sewar.utils._compute_bef(p.astype(np.float64))
+		self.assertGreater(integer_bef, 0.0)
+		self.assertAlmostEqual(integer_bef, float_bef)
+
+		integer_result = sewar.full_ref.psnrb(gt, p, MAX=255)
+		float_result = sewar.full_ref.psnrb(
+			gt.astype(np.float64), p.astype(np.float64), MAX=255)
+		self.assertAlmostEqual(integer_result, float_result)
+
+	def test_default_peak_uses_image_dtype_or_float_range(self):
+		for dtype, value, peak in (
+			(np.uint8, 1, np.iinfo(np.uint8).max),
+			(np.uint16, 100, np.iinfo(np.uint16).max),
+			(np.float64, 0.25, 1.0),
+		):
+			gt = np.zeros((32, 32), dtype=dtype)
+			p = np.full((32, 32), value, dtype=dtype)
+			expected = 10.0 * np.log10(peak**2 / (value**2))
+			self.assertAlmostEqual(sewar.full_ref.psnrb(gt, p), expected)

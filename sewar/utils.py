@@ -91,6 +91,8 @@ def _compute_bef(im, block_size=8):
 	:param block_size: Size of the block over which DCT was performed during compression
 	:return: float -- bef.
 	"""
+	im = np.asarray(im, dtype=np.float64)
+
 	if len(im.shape) == 3:
 		height, width, channels = im.shape
 	elif len(im.shape) == 2:
