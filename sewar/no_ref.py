@@ -41,8 +41,8 @@ def d_s (pan,ms,fused,q=1,r=4,ws=7):
 	pan = pan.astype(np.float64)
 	fused = fused.astype(np.float64)
 
-	pan_degraded = uniform_filter(pan.astype(np.float64), size=ws)/(ws**2)
-	pan_degraded = imresize(pan_degraded,(pan.shape[0]//r,pan.shape[1]//r))
+	pan_degraded = uniform_filter(pan, size=ws)
+	pan_degraded = imresize(pan_degraded,(pan.shape[1]//r,pan.shape[0]//r))
 
 	L = ms.shape[2]
 
@@ -74,5 +74,4 @@ def qnr (pan,ms,fused,alpha=1,beta=1,p=1,q=1,r=4,ws=7):
 	a = (1-d_lambda(ms,fused,p=p))**alpha
 	b = (1-d_s(pan,ms,fused,q=q,ws=ws,r=r))**beta
 	return a*b
-
 

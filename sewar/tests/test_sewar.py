@@ -223,6 +223,13 @@ class TestNoRef(Tester):
 		d = sewar.no_ref.d_lambda(self.read('clr'),self.read('clr'))
 		self.assertTrue(d == 0)
 
+	def test_d_s_preserves_pan_mean_for_rectangular_images(self):
+		pan = np.full((64, 96), 128., dtype=np.float32)
+		ms = np.full((32, 48, 3), 128., dtype=np.float32)
+		fused = np.full((64, 96, 3), 128., dtype=np.float32)
+
+		self.assertAlmostEqual(sewar.no_ref.d_s(pan, ms, fused, r=2), 0.0)
+
 class TestVIF(Tester):
 	def test_color(self):
 		v = sewar.full_ref.vifp(self.read('clr'),self.read('clr'))
