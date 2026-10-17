@@ -138,6 +138,15 @@ class TestRase(Tester):
 		rase = sewar.rase(self.read('gry'),self.read('gry'))
 		self.assertTrue(rase == 0)
 
+	def test_nonzero_error_uses_spatial_per_band_means(self):
+		band_means = np.array([50., 100., 200.])
+		band_errors = np.array([10., 20., 30.])
+		gt = np.ones((32, 32, 3)) * band_means
+		p = gt + band_errors
+
+		expected = 100. * np.sqrt(np.mean(band_errors**2)) / np.mean(band_means)
+		self.assertAlmostEqual(sewar.rase(gt, p), expected)
+
 	def test_zero_gt_no_division_by_zero(self):
 		# When GT has zero mean, the old code divided by zero producing NaN/inf.
 		# The fix should return 0.0 for those windows instead.

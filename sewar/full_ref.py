@@ -234,7 +234,7 @@ def rase(GT,P,ws=8):
 
 	_,rmse_map = rmse_sw(GT,P,ws)
 
-	GT_means = uniform_filter(GT, ws)/ws**2
+	GT_means = uniform_filter(GT, size=(ws,ws,1))
 
 
 	N = GT.shape[2]
