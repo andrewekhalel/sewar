@@ -204,6 +204,30 @@ class TestMsssim(Tester):
 		print (msssim)
 		self.assertTrue(abs(0.631429952770791-msssim)<self.eps)
 
+	def test_custom_window_size_is_used(self):
+		rng = np.random.default_rng(1)
+		gt = rng.integers(0, 256, (64, 64), dtype=np.uint8)
+		p = gt.copy()
+		p[24:40, 24:40] = 255 - p[24:40, 24:40]
+		ws = 9
+		fltr_specs = dict(fltr=sewar.full_ref.Filter.GAUSSIAN, sigma=1.5, ws=ws)
+
+		expected, _ = sewar.ssim(gt, p, ws=ws, fltr_specs=fltr_specs)
+		self.assertAlmostEqual(
+			sewar.msssim(gt, p, weights=[1.0], ws=ws), expected)
+
+	def test_image_smaller_than_window_raises(self):
+		image = np.zeros((8, 8), dtype=np.uint8)
+		with self.assertRaisesRegex(ValueError, 'at least ws=9'):
+			sewar.msssim(image, image, weights=[1.0], ws=9)
+
+	def test_invalid_window_size_raises(self):
+		image = np.zeros((16, 16), dtype=np.uint8)
+		for ws in (0, -1, 1.5, True):
+			with self.subTest(ws=ws):
+				with self.assertRaisesRegex(ValueError, 'positive integer'):
+					sewar.msssim(image, image, weights=[1.0], ws=ws)
+
 	def test_wide_image(self):
 		# Regression for issue #37: wide images crashed because downsampling
 		# reduced the short side below the filter window size.

@@ -281,7 +281,8 @@ def msssim (GT,P,weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333],ws=11,K1=0.0
 	:param GT: first (original) input image.
 	:param P: second (deformed) input image.
 	:param weights: weights for each scale (default = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]).
-	:param ws: sliding window size (default = 11).
+	:param ws: positive sliding window size (default = 11). The image must be at
+	           least this large in both spatial dimensions.
 	:param K1: First constant for SSIM (default = 0.01).
 	:param K2: Second constant for SSIM (default = 0.03).
 	:param MAX: Maximum value of datarange (if None, MAX is calculated using image dtype).
@@ -292,10 +293,14 @@ def msssim (GT,P,weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333],ws=11,K1=0.0
 		MAX = np.iinfo(GT.dtype).max
 
 	GT,P = _initial_check(GT,P)
+	if isinstance(ws, (bool, np.bool_)) or not isinstance(ws, (int, np.integer)) or ws <= 0:
+		raise ValueError("ws must be a positive integer.")
 
 	scales = len(weights)
+	if scales == 0:
+		raise ValueError("weights must contain at least one scale.")
 
-	fltr_specs = dict(fltr=Filter.GAUSSIAN,sigma=1.5,ws=11)
+	fltr_specs = dict(fltr=Filter.GAUSSIAN,sigma=1.5,ws=ws)
 
 	if isinstance(weights, list):
 		weights = np.array(weights)
@@ -303,6 +308,9 @@ def msssim (GT,P,weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333],ws=11,K1=0.0
 	# Cap scales so the image is never smaller than the filter window after downsampling.
 	# After k halvings the short side is min_dim/2^k; we need that >= ws.
 	min_dim = min(GT.shape[0], GT.shape[1])
+	if min_dim < ws:
+		raise ValueError(
+			"Image dimensions must be at least ws={} for MS-SSIM.".format(ws))
 	max_scales = int(np.floor(np.log2(min_dim / ws))) + 1
 	if scales > max_scales:
 		import warnings
