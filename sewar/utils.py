@@ -9,6 +9,26 @@ class Filter(Enum):
 	UNIFORM = 0
 	GAUSSIAN = 1
 
+def _get_max_value(image,MAX=None):
+	"""Return a validated peak value, defaulting to the image dtype range."""
+	if MAX is None:
+		if not isinstance(image,np.ndarray):
+			raise TypeError("Image must be a numpy array to infer MAX.")
+		if np.issubdtype(image.dtype,np.integer):
+			MAX = np.iinfo(image.dtype).max
+		elif np.issubdtype(image.dtype,np.floating) or np.issubdtype(image.dtype,np.bool_):
+			MAX = 1.0
+		else:
+			raise TypeError("MAX must be specified for this image dtype.")
+
+	try:
+		MAX = float(MAX)
+	except (TypeError,ValueError,OverflowError):
+		raise ValueError("MAX must be a positive finite scalar.")
+	if not np.isfinite(MAX) or MAX <= 0:
+		raise ValueError("MAX must be a positive finite scalar.")
+	return MAX
+
 def _initial_check(GT,P):
 	if not isinstance(GT, np.ndarray) or not isinstance(P, np.ndarray):
 		raise TypeError("GT and P must be numpy arrays (numpy.ndarray). "

@@ -54,6 +54,29 @@ class Testpsnr(Tester):
 		psnr = sewar.psnr(self.read('gry'),self.read('gry_const'))
 		self.assertTrue(abs(psnr - 15.084871) < self.eps)
 
+class TestFloatRange(Tester):
+	def test_psnr_float_default_and_explicit_ranges(self):
+		gt = np.zeros((32, 32), dtype=np.float32)
+		p = np.full((32, 32), 0.1, dtype=np.float32)
+		self.assertAlmostEqual(sewar.psnr(gt, p), 20.0, delta=1e-6)
+		self.assertAlmostEqual(
+			sewar.psnr(gt, p, MAX=255), 10.0*np.log10(255**2/0.01), delta=1e-6)
+
+	def test_ssim_accepts_float_images_without_max(self):
+		gt = np.zeros((32, 32), dtype=np.float32)
+		p = gt.copy()
+		p[8:24, 8:24] = 0.5
+		ssim_value, cs_value = sewar.ssim(gt, p)
+		self.assertTrue(np.isfinite(ssim_value))
+		self.assertTrue(np.isfinite(cs_value))
+
+	def test_msssim_accepts_float_images_without_max(self):
+		gt = np.zeros((32, 32), dtype=np.float32)
+		p = gt.copy()
+		p[8:24, 8:24] = 0.5
+		result = sewar.msssim(gt, p, weights=[1.0])
+		self.assertTrue(np.isfinite(result))
+
 class TestSsim(Tester):
 	def test_color(self):
 		ssim,_ = sewar.ssim(self.read('clr'),self.read('clr'),ws=11)

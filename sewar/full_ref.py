@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 from scipy import signal
 from scipy.ndimage import generic_laplace,uniform_filter,correlate,gaussian_filter
-from .utils import _initial_check,_get_sigmas,_get_sums,Filter,_replace_value,fspecial,filter2,_power_complex,_compute_bef
+from .utils import _initial_check,_get_max_value,_get_sigmas,_get_sums,Filter,_replace_value,fspecial,filter2,_power_complex,_compute_bef
 
 def mse (GT,P):
 	"""calculates mean squared error (mse).
@@ -56,12 +56,12 @@ def psnr (GT,P,MAX=None):
 
 	:param GT: first (original) input image.
 	:param P: second (deformed) input image.
-	:param MAX: maximum value of datarange (if None, MAX is calculated using image dtype).
+	:param MAX: maximum value of datarange (if None, inferred from image dtype;
+	            floating-point images are assumed to be in [0, 1]).
 
 	:returns:  float -- psnr value in dB.
 	"""
-	if MAX is None:
-		MAX = np.iinfo(GT.dtype).max
+	MAX = _get_max_value(GT,MAX)
 
 	GT,P = _initial_check(GT,P)
 
@@ -135,12 +135,12 @@ def ssim (GT,P,ws=11,K1=0.01,K2=0.03,MAX=None,fltr_specs=None,mode='valid'):
 	:param ws: sliding window size (default = 8).
 	:param K1: First constant for SSIM (default = 0.01).
 	:param K2: Second constant for SSIM (default = 0.03).
-	:param MAX: Maximum value of datarange (if None, MAX is calculated using image dtype).
+	:param MAX: Maximum value of datarange (if None, inferred from image dtype;
+	            floating-point images are assumed to be in [0, 1]).
 
 	:returns:  tuple -- ssim value, cs value.
 	"""
-	if MAX is None:
-		MAX = np.iinfo(GT.dtype).max
+	MAX = _get_max_value(GT,MAX)
 
 	GT,P = _initial_check(GT,P)
 
@@ -285,12 +285,12 @@ def msssim (GT,P,weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333],ws=11,K1=0.0
 	           least this large in both spatial dimensions.
 	:param K1: First constant for SSIM (default = 0.01).
 	:param K2: Second constant for SSIM (default = 0.03).
-	:param MAX: Maximum value of datarange (if None, MAX is calculated using image dtype).
+	:param MAX: Maximum value of datarange (if None, inferred from image dtype;
+	            floating-point images are assumed to be in [0, 1]).
 
 	:returns:  float -- ms-ssim value.
 	"""
-	if MAX is None:
-		MAX = np.iinfo(GT.dtype).max
+	MAX = _get_max_value(GT,MAX)
 
 	GT,P = _initial_check(GT,P)
 	if isinstance(ws, (bool, np.bool_)) or not isinstance(ws, (int, np.integer)) or ws <= 0:
@@ -538,17 +538,7 @@ def psnrb(GT, P, MAX=None):
 	if GT.ndim not in (2, 3) or P.ndim not in (2, 3):
 		raise ValueError("PSNR-B expects grayscale or color image arrays.")
 
-	if MAX is None:
-		if np.issubdtype(GT.dtype, np.integer):
-			MAX = np.iinfo(GT.dtype).max
-		elif np.issubdtype(GT.dtype, np.floating) or np.issubdtype(GT.dtype, np.bool_):
-			MAX = 1.0
-		else:
-			raise TypeError("MAX must be specified for this image dtype.")
-
-	if not np.isscalar(MAX) or not np.isfinite(MAX) or MAX <= 0:
-		raise ValueError("MAX must be a positive finite scalar.")
-	MAX = float(MAX)
+	MAX = _get_max_value(GT,MAX)
 
 	if len(GT.shape) == 3:
 		GT = GT[:, :, 0]
