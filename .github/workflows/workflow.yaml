@@ -3,15 +3,25 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Pure-Python hypercomplex backend (pyfastcd not installed)
+          - python-version: '3.9'
+            extra-packages: ''
+          # Optional pyfastcd backend for Q2n
+          - python-version: '3.12'
+            extra-packages: 'pyfastcd>=1.4.0'
     steps:
     - name: Checkout
       uses: actions/checkout@v1
-    - name: Set up Python 3.9
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: ${{ matrix.python-version }}
     - name: Install requirements
-      run: pip install -r requirements.txt pytest pytest-cov
+      run: pip install -r requirements.txt pytest pytest-cov ${{ matrix.extra-packages }}
     - name: Run tests and collect coverage
       run: pytest --cov=sewar
     - name: Upload coverage reports to Codecov
