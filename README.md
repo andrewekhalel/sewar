@@ -38,6 +38,11 @@ Just as simple as
 pip install sewar
 ```
 
+Q2n can optionally use the compiled Cayley-Dickson kernels of [pyfastcd](https://pypi.org/project/pyfastcd/) (requires CPython 3.10 or newer), which makes it faster, most of all for images with many bands. Numerical results are identical with or without it. See [benchmarks](benchmarks/README.md) for timings.
+```
+pip install sewar[fast]
+```
+
 ## Running tests
 ```
 pip install pytest pytest-cov

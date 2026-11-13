@@ -3,6 +3,7 @@ import numpy as np
 from scipy import signal
 from scipy.ndimage import generic_laplace,uniform_filter,correlate,gaussian_filter
 from .utils import _initial_check,_get_max_value,_get_sigmas,_get_sums,Filter,_replace_value,fspecial,filter2,_power_complex,_compute_bef
+from ._hypercomplex import _onion_mult,_onion_mult2D
 
 def mse (GT,P):
 	"""calculates mean squared error (mse).
@@ -398,36 +399,6 @@ def _norm_blocco(x):
 		c = np.finfo(float).eps
 	return (x - a) / c + 1.0, a, c
 
-def _onion_mult(o1, o2):
-	N = len(o1)
-	if N == 1:
-		return o1 * o2
-	L = N // 2
-	a = o1[:L];  b = np.concatenate([[o1[L]], -o1[L+1:]])
-	c = o2[:L];  d = np.concatenate([[o2[L]], -o2[L+1:]])
-	if N == 2:
-		return np.array([a[0]*c[0] - d[0]*b[0], a[0]*d[0] + c[0]*b[0]])
-	ris1 = _onion_mult(a, c)
-	ris2 = _onion_mult(d, np.concatenate([[b[0]], -b[1:]]))
-	ris3 = _onion_mult(np.concatenate([[a[0]], -a[1:]]), d)
-	ris4 = _onion_mult(c, b)
-	return np.concatenate([ris1 - ris2, ris3 + ris4])
-
-def _onion_mult2D(o1, o2):
-	N3 = o1.shape[2]
-	if N3 == 1:
-		return o1 * o2
-	L = N3 // 2
-	a = o1[:,:,:L];  b = np.concatenate([o1[:,:,L:L+1], -o1[:,:,L+1:]], axis=2)
-	c = o2[:,:,:L];  d = np.concatenate([o2[:,:,L:L+1], -o2[:,:,L+1:]], axis=2)
-	if N3 == 2:
-		return np.concatenate([a*c - d*b, a*d + c*b], axis=2)
-	ris1 = _onion_mult2D(a, c)
-	ris2 = _onion_mult2D(d, np.concatenate([b[:,:,:1], -b[:,:,1:]], axis=2))
-	ris3 = _onion_mult2D(np.concatenate([a[:,:,:1], -a[:,:,1:]], axis=2), d)
-	ris4 = _onion_mult2D(c, b)
-	return np.concatenate([ris1 - ris2, ris3 + ris4], axis=2)
-
 def _onions_quality(dat1, dat2, ws):
 	dat1 = dat1.astype(np.float64)
 	dat2 = np.concatenate([dat2[:,:,:1], -dat2[:,:,1:]], axis=2).astype(np.float64)
@@ -468,6 +439,10 @@ def q2n(GT, P, ws=32, stride=None):
 	For N bands the bands are interpreted as components of a Cayley-Dickson number
 	(complex for N=2, quaternion for N=4, octonion for N=8).  If N is not a power
 	of two the image is zero-padded in the band dimension.
+
+	The hypercomplex products use the optional ``pyfastcd`` package when it is
+	installed (``pip install sewar[fast]``) and a pure-Python implementation
+	otherwise; both give the same result.
 
 	Reference: Garzelli & Nencini, IEEE GRSL 2009; Vivone et al., IEEE TGRS 2015.
 

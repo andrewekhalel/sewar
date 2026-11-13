@@ -38,6 +38,9 @@ setup(name='sewar',
 	install_requires=[
 	'numpy', 'scipy' , 'Pillow'
 	],
+	extras_require={
+	'fast': ['pyfastcd>=1.4.0']
+	},
 	entry_points="""
     [console_scripts]
     sewar = sewar.command_line:main
